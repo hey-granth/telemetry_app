@@ -1,14 +1,15 @@
-import pytest
-import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
-from datetime import datetime, timezone
 
-from app.main import app
-from app.domain.entities.device import Device, DeviceStatus
-from app.domain.entities.reading import Reading
-from app.domain.value_objects.metrics import SensorMetrics
+import pytest
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+
+from telemetry_backend.domain.entities.device import Device, DeviceStatus
+from telemetry_backend.domain.entities.reading import Reading
+from telemetry_backend.domain.value_objects.metrics import SensorMetrics
+from telemetry_backend.main import app
 
 
 @pytest_asyncio.fixture
@@ -26,7 +27,7 @@ class TestHealthEndpoint:
     async def test_health_check(self, async_client):
         """Test health check returns ok status."""
         response = await async_client.get("/health")
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "healthy"
@@ -43,7 +44,7 @@ class TestIngestEndpoint:
             mock_svc.ingest_reading.return_value = Reading(
                 id=uuid4(),
                 device_id=uuid4(),
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 metrics=SensorMetrics(temperature=25.0, humidity=50.0, voltage=3.3),
             )
             mock_service.return_value = mock_svc
@@ -104,8 +105,8 @@ class TestDevicesEndpoint:
                     name="Test Device 1",
                     api_key_hash="hash1",
                     status=DeviceStatus.ONLINE,
-                    created_at=datetime.now(timezone.utc),
-                    last_seen=datetime.now(timezone.utc),
+                    created_at=datetime.now(UTC),
+                    last_seen=datetime.now(UTC),
                 ),
                 Device(
                     id=uuid4(),
@@ -113,8 +114,8 @@ class TestDevicesEndpoint:
                     name="Test Device 2",
                     api_key_hash="hash2",
                     status=DeviceStatus.OFFLINE,
-                    created_at=datetime.now(timezone.utc),
-                    last_seen=datetime.now(timezone.utc),
+                    created_at=datetime.now(UTC),
+                    last_seen=datetime.now(UTC),
                 ),
             ]
             mock_service.return_value = mock_svc
@@ -129,7 +130,7 @@ class TestDevicesEndpoint:
     async def test_get_device_stats(self, async_client):
         """Test getting device statistics."""
         device_id = str(uuid4())
-        
+
         with patch('app.api.devices.routes.get_device_service') as mock_service:
             mock_svc = AsyncMock()
             mock_svc.get_device_stats.return_value = {
@@ -138,7 +139,7 @@ class TestDevicesEndpoint:
                 "avg_temperature": 25.0,
                 "avg_humidity": 50.0,
                 "avg_voltage": 3.3,
-                "last_reading": datetime.now(timezone.utc).isoformat(),
+                "last_reading": datetime.now(UTC).isoformat(),
             }
             mock_service.return_value = mock_svc
 

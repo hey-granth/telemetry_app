@@ -7,8 +7,8 @@ A production-grade IoT data platform with three decoupled components: FastAPI ba
 ```
 ┌─────────────┐     HTTP/WS      ┌─────────────────┐     PostgreSQL    ┌────────────┐
 │   ESP32     │ ───────────────▶ │  FastAPI        │ ◀───────────────▶ │ PostgreSQL │
-│  Devices    │                  │  Backend        │                    │  Database  │
-└─────────────┘                  └────────┬────────┘                    └────────────┘
+│  Devices    │                  │  Backend        │                   │  Database  │
+└─────────────┘                  └────────┬────────┘                   └────────────┘
                                           │
                                     HTTP/WS
                                           │

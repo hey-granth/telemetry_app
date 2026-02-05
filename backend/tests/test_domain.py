@@ -1,11 +1,12 @@
-import pytest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
-from app.domain.entities.device import Device, DeviceStatus
-from app.domain.entities.reading import Reading
-from app.domain.value_objects.metrics import SensorMetrics
-from app.domain.value_objects.time_range import TimeRange
+import pytest
+
+from telemetry_backend.domain.entities.device import Device, DeviceStatus
+from telemetry_backend.domain.entities.reading import Reading
+from telemetry_backend.domain.value_objects.metrics import SensorMetrics
+from telemetry_backend.domain.value_objects.time_range import TimeRange
 
 
 class TestDevice:
@@ -19,8 +20,8 @@ class TestDevice:
             name="Test Device",
             api_key_hash="hashed_key",
             status=DeviceStatus.ONLINE,
-            created_at=datetime.now(timezone.utc),
-            last_seen=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
+            last_seen=datetime.now(UTC),
         )
 
         assert device.device_id == "esp32-001"
@@ -36,8 +37,8 @@ class TestDevice:
             name="Test Device",
             api_key_hash="hashed_key",
             status=DeviceStatus.OFFLINE,
-            created_at=datetime.now(timezone.utc),
-            last_seen=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
+            last_seen=datetime.now(UTC),
         )
 
         assert device.is_online is False
@@ -56,11 +57,11 @@ class TestReading:
         """Test reading entity creation."""
         device_id = uuid4()
         metrics = SensorMetrics(temperature=25.0, humidity=50.0, voltage=3.3)
-        
+
         reading = Reading(
             id=uuid4(),
             device_id=device_id,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             metrics=metrics,
         )
 
@@ -126,9 +127,9 @@ class TestTimeRange:
 
     def test_valid_time_range(self):
         """Test valid time range creation."""
-        start = datetime(2024, 1, 1, tzinfo=timezone.utc)
-        end = datetime(2024, 1, 2, tzinfo=timezone.utc)
-        
+        start = datetime(2024, 1, 1, tzinfo=UTC)
+        end = datetime(2024, 1, 2, tzinfo=UTC)
+
         tr = TimeRange(start=start, end=end)
 
         assert tr.start == start
@@ -137,21 +138,21 @@ class TestTimeRange:
 
     def test_invalid_time_range(self):
         """Test that end cannot be before start."""
-        start = datetime(2024, 1, 2, tzinfo=timezone.utc)
-        end = datetime(2024, 1, 1, tzinfo=timezone.utc)
+        start = datetime(2024, 1, 2, tzinfo=UTC)
+        end = datetime(2024, 1, 1, tzinfo=UTC)
 
         with pytest.raises(ValueError, match="end.*before.*start"):
             TimeRange(start=start, end=end)
 
     def test_contains_timestamp(self):
         """Test timestamp containment check."""
-        start = datetime(2024, 1, 1, tzinfo=timezone.utc)
-        end = datetime(2024, 1, 3, tzinfo=timezone.utc)
+        start = datetime(2024, 1, 1, tzinfo=UTC)
+        end = datetime(2024, 1, 3, tzinfo=UTC)
         tr = TimeRange(start=start, end=end)
 
-        within = datetime(2024, 1, 2, tzinfo=timezone.utc)
-        before = datetime(2023, 12, 31, tzinfo=timezone.utc)
-        after = datetime(2024, 1, 4, tzinfo=timezone.utc)
+        within = datetime(2024, 1, 2, tzinfo=UTC)
+        before = datetime(2023, 12, 31, tzinfo=UTC)
+        after = datetime(2024, 1, 4, tzinfo=UTC)
 
         assert tr.contains(within) is True
         assert tr.contains(before) is False
