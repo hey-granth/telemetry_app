@@ -14,15 +14,17 @@ from telemetry_backend.services.ingestion_service import IngestionService
 def device_repository():
     """Mock device repository."""
     repo = AsyncMock()
-    repo.get_by_device_id = AsyncMock(return_value=Device(
-        id=uuid4(),
-        device_id="esp32-001",
-        name="Test Device",
-        api_key_hash="hashed_key",
-        status=DeviceStatus.ONLINE,
-        created_at=datetime.now(UTC),
-        last_seen=datetime.now(UTC),
-    ))
+    repo.get_by_device_id = AsyncMock(
+        return_value=Device(
+            id=uuid4(),
+            device_id="esp32-001",
+            name="Test Device",
+            api_key_hash="hashed_key",
+            status=DeviceStatus.ONLINE,
+            created_at=datetime.now(UTC),
+            last_seen=datetime.now(UTC),
+        )
+    )
     repo.update_last_seen = AsyncMock()
     return repo
 
@@ -31,12 +33,14 @@ def device_repository():
 def reading_repository():
     """Mock reading repository."""
     repo = AsyncMock()
-    repo.create = AsyncMock(return_value=Reading(
-        id=uuid4(),
-        device_id=uuid4(),
-        timestamp=datetime.now(UTC),
-        metrics=SensorMetrics(temperature=25.0, humidity=50.0, voltage=3.3),
-    ))
+    repo.create = AsyncMock(
+        return_value=Reading(
+            id=uuid4(),
+            device_id=uuid4(),
+            timestamp=datetime.now(UTC),
+            metrics=SensorMetrics(temperature=25.0, humidity=50.0, voltage=3.3),
+        )
+    )
     return repo
 
 
@@ -139,7 +143,7 @@ class TestIngestionService:
         after = datetime.now(UTC)
 
         call_args = reading_repository.create.call_args
-        reading_data = call_args[0][0] if call_args[0] else call_args[1].get('reading')
+        reading_data = call_args[0][0] if call_args[0] else call_args[1].get("reading")
 
         # Verify timestamp was assigned in the expected range
         assert reading_data is not None

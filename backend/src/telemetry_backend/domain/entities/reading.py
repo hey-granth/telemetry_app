@@ -17,10 +17,10 @@ from telemetry_backend.domain.value_objects.metrics import SensorMetrics
 class Reading:
     """
     Sensor reading entity.
-    
+
     Represents a single immutable sensor reading from a device.
     Timestamps are always server-assigned in UTC - never trust client time.
-    
+
     Attributes:
         id: Unique reading identifier (UUID).
         device_id: Reference to the device that produced this reading.
@@ -42,18 +42,18 @@ class Reading:
     ) -> Self:
         """
         Factory method to create a new reading.
-        
+
         Timestamp is assigned server-side to ensure consistency.
         Client-provided timestamps are ignored for data integrity.
-        
+
         Args:
             device_id: Device that produced this reading.
             metrics: Sensor metric values.
             timestamp: Server timestamp (defaults to now). Only for testing.
-            
+
         Returns:
             New Reading instance with server-assigned timestamp.
-            
+
         Raises:
             ValueError: If device_id is empty.
         """
@@ -70,7 +70,7 @@ class Reading:
     def to_dict(self) -> dict:
         """
         Convert reading to dictionary for serialization.
-        
+
         Returns:
             Dictionary representation of the reading.
         """

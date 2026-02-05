@@ -39,7 +39,7 @@ class TestIngestEndpoint:
     @pytest.mark.asyncio
     async def test_ingest_valid_reading(self, async_client):
         """Test ingesting valid sensor reading."""
-        with patch('app.api.ingest.routes.get_ingestion_service') as mock_service:
+        with patch("app.api.ingest.routes.get_ingestion_service") as mock_service:
             mock_svc = AsyncMock()
             mock_svc.ingest_reading.return_value = Reading(
                 id=uuid4(),
@@ -96,7 +96,7 @@ class TestDevicesEndpoint:
     @pytest.mark.asyncio
     async def test_list_devices(self, async_client):
         """Test listing all devices."""
-        with patch('app.api.devices.routes.get_device_service') as mock_service:
+        with patch("app.api.devices.routes.get_device_service") as mock_service:
             mock_svc = AsyncMock()
             mock_svc.list_devices.return_value = [
                 Device(
@@ -131,7 +131,7 @@ class TestDevicesEndpoint:
         """Test getting device statistics."""
         device_id = str(uuid4())
 
-        with patch('app.api.devices.routes.get_device_service') as mock_service:
+        with patch("app.api.devices.routes.get_device_service") as mock_service:
             mock_svc = AsyncMock()
             mock_svc.get_device_stats.return_value = {
                 "device_id": "esp32-001",

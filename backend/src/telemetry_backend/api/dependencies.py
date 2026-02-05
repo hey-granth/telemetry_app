@@ -81,7 +81,7 @@ def require_admin_api_key(
 ) -> str:
     """
     Require admin API key for protected endpoints.
-    
+
     Raises:
         HTTPException: If API key is missing or invalid.
     """

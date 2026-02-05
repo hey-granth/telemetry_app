@@ -14,10 +14,10 @@ from typing import Self
 class TimeRange:
     """
     Time range value object for historical queries.
-    
+
     Ensures start is before end and provides parsing utilities
     for common time range formats.
-    
+
     Attributes:
         start: Start of the time range (inclusive, UTC).
         end: End of the time range (inclusive, UTC).
@@ -35,14 +35,14 @@ class TimeRange:
     def last(cls, duration_str: str, now: datetime | None = None) -> Self:
         """
         Create a time range for the last N hours/days/minutes.
-        
+
         Args:
             duration_str: Duration string like "24h", "7d", "30m".
             now: Reference timestamp (defaults to current UTC time).
-            
+
         Returns:
             TimeRange from (now - duration) to now.
-            
+
         Raises:
             ValueError: If duration string format is invalid.
         """
@@ -83,14 +83,14 @@ class TimeRange:
     def between(cls, start: datetime, end: datetime) -> Self:
         """
         Create a time range between two timestamps.
-        
+
         Args:
             start: Start timestamp (UTC).
             end: End timestamp (UTC).
-            
+
         Returns:
             TimeRange instance.
-            
+
         Raises:
             ValueError: If start is not before end.
         """

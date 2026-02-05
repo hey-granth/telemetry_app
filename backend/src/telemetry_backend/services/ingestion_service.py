@@ -67,7 +67,7 @@ class AuthenticationError(IngestionError):
 class IngestionService:
     """
     Service for ingesting sensor readings from ESP32 devices.
-    
+
     Responsibilities:
     - Validate incoming payloads
     - Authenticate devices via API key
@@ -85,7 +85,7 @@ class IngestionService:
     ) -> None:
         """
         Initialize ingestion service.
-        
+
         Args:
             device_repository: Repository for device data access.
             reading_repository: Repository for reading data access.
@@ -105,7 +105,7 @@ class IngestionService:
     ) -> Reading:
         """
         Ingest a sensor reading from a device.
-        
+
         Flow:
         1. Validate API key is present
         2. Validate device exists and is active
@@ -114,15 +114,15 @@ class IngestionService:
         5. Persist reading
         6. Update device last_seen_at
         7. Broadcast to WebSocket subscribers
-        
+
         Args:
             device_id: Human-readable device identifier.
             metrics_data: Dictionary with temperature, humidity, voltage.
             api_key: API key for device authentication.
-            
+
         Returns:
             Created Reading entity.
-            
+
         Raises:
             AuthenticationError: If API key is invalid.
             DeviceNotFoundError: If device doesn't exist.

@@ -1,7 +1,7 @@
 """Initial migration - create devices and readings tables
 
 Revision ID: 001_initial
-Revises: 
+Revises:
 Create Date: 2024-01-15
 """
 

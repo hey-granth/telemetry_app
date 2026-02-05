@@ -21,19 +21,19 @@ async def stream_device_readings(
 ) -> None:
     """
     WebSocket endpoint for streaming device readings.
-    
+
     **Protocol:**
-    
+
     1. Client connects to /stream/devices/{device_id}
     2. Server sends acknowledgment: {"type": "ack", "message": "..."}
     3. Server pushes readings: {"type": "reading", "device_id": "...", "data": {...}}
     4. Client can send: {"action": "ping"} to keep alive
     5. Server responds: {"type": "pong"}
-    
+
     **Error handling:**
     - Invalid messages: {"type": "error", "error": "...", "code": "..."}
     - Connection errors cause automatic disconnect
-    
+
     **Reconnection:**
     - Clients should implement exponential backoff
     - State is not preserved between connections
@@ -110,9 +110,9 @@ async def stream_device_readings(
 async def stream_all_devices(websocket: WebSocket) -> None:
     """
     WebSocket endpoint for streaming all device readings.
-    
+
     Broadcasts readings from all devices. Use for dashboard views.
-    
+
     **Note:** For high-frequency data, prefer subscribing to specific devices.
     """
     manager = get_ws_manager()

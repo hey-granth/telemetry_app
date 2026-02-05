@@ -15,10 +15,10 @@ from uuid import UUID, uuid4
 class Device:
     """
     IoT device entity.
-    
+
     Represents a registered device that can submit sensor readings.
     Immutable to ensure domain invariants are preserved.
-    
+
     Attributes:
         id: Unique device identifier (UUID).
         device_id: Human-readable device identifier (e.g., "esp32_01").
@@ -47,16 +47,16 @@ class Device:
     ) -> Self:
         """
         Factory method to create a new device.
-        
+
         Args:
             device_id: Human-readable device identifier.
             api_key_hash: Hashed API key for authentication.
             name: Optional friendly name.
             created_at: Creation timestamp (defaults to now).
-            
+
         Returns:
             New Device instance.
-            
+
         Raises:
             ValueError: If device_id is empty or invalid.
         """
@@ -68,7 +68,9 @@ class Device:
 
         # Only allow alphanumeric, underscore, and hyphen
         if not all(c.isalnum() or c in "_-" for c in device_id):
-            raise ValueError("device_id can only contain alphanumeric characters, underscores, and hyphens")
+            raise ValueError(
+                "device_id can only contain alphanumeric characters, underscores, and hyphens"
+            )
 
         return cls(
             id=uuid4(),
@@ -83,10 +85,10 @@ class Device:
     def with_last_seen(self, timestamp: datetime) -> Self:
         """
         Create a copy with updated last_seen_at timestamp.
-        
+
         Args:
             timestamp: New last seen timestamp (UTC).
-            
+
         Returns:
             New Device instance with updated timestamp.
         """
@@ -103,7 +105,7 @@ class Device:
     def deactivate(self) -> Self:
         """
         Create a deactivated copy of this device.
-        
+
         Returns:
             New Device instance with is_active=False.
         """

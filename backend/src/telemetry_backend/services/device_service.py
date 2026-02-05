@@ -48,7 +48,7 @@ class DeviceNotFoundError(DeviceError):
 class DeviceService:
     """
     Service for device management operations.
-    
+
     Responsibilities:
     - Register new devices
     - Deactivate devices
@@ -59,7 +59,7 @@ class DeviceService:
     def __init__(self, device_repository: DeviceRepository) -> None:
         """
         Initialize device service.
-        
+
         Args:
             device_repository: Repository for device data access.
         """
@@ -72,17 +72,17 @@ class DeviceService:
     ) -> dict[str, Any]:
         """
         Register a new device.
-        
+
         Generates an API key for the device to use for authentication.
         The raw API key is only returned once - store it securely.
-        
+
         Args:
             device_id: Human-readable device identifier.
             name: Optional friendly name.
-            
+
         Returns:
             Dictionary with device info and raw API key.
-            
+
         Raises:
             DeviceExistsError: If device_id already exists.
             ValueError: If device_id is invalid.
@@ -120,13 +120,13 @@ class DeviceService:
     async def get_device(self, device_id: str) -> dict[str, Any]:
         """
         Get device information.
-        
+
         Args:
             device_id: Human-readable device identifier.
-            
+
         Returns:
             Device information dictionary.
-            
+
         Raises:
             DeviceNotFoundError: If device doesn't exist.
         """
@@ -147,10 +147,10 @@ class DeviceService:
     async def list_devices(self, include_inactive: bool = False) -> list[dict[str, Any]]:
         """
         List all devices.
-        
+
         Args:
             include_inactive: Include deactivated devices.
-            
+
         Returns:
             List of device information dictionaries.
         """
@@ -163,7 +163,9 @@ class DeviceService:
                 "name": device.name,
                 "is_active": device.is_active,
                 "created_at": device.created_at.isoformat() + "Z",
-                "last_seen_at": device.last_seen_at.isoformat() + "Z" if device.last_seen_at else None,
+                "last_seen_at": device.last_seen_at.isoformat() + "Z"
+                if device.last_seen_at
+                else None,
             }
             for device in devices
         ]
@@ -171,15 +173,15 @@ class DeviceService:
     async def deactivate_device(self, device_id: str) -> dict[str, Any]:
         """
         Deactivate a device.
-        
+
         Deactivated devices cannot submit readings.
-        
+
         Args:
             device_id: Human-readable device identifier.
-            
+
         Returns:
             Confirmation message.
-            
+
         Raises:
             DeviceNotFoundError: If device doesn't exist.
         """

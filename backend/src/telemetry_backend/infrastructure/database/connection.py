@@ -30,9 +30,9 @@ _session_factory: async_sessionmaker[AsyncSession] | None = None
 async def init_database(settings: Settings | None = None) -> None:
     """
     Initialize database engine and session factory.
-    
+
     Should be called once during application startup.
-    
+
     Args:
         settings: Application settings. If None, loads from environment.
     """
@@ -73,7 +73,7 @@ async def init_database(settings: Settings | None = None) -> None:
 async def close_database() -> None:
     """
     Close database connections.
-    
+
     Should be called during application shutdown.
     """
     global _engine, _session_factory
@@ -92,10 +92,10 @@ async def close_database() -> None:
 def get_engine() -> AsyncEngine:
     """
     Get the database engine.
-    
+
     Returns:
         Configured AsyncEngine instance.
-        
+
     Raises:
         RuntimeError: If database is not initialized.
     """
@@ -107,10 +107,10 @@ def get_engine() -> AsyncEngine:
 def get_session_factory() -> async_sessionmaker[AsyncSession]:
     """
     Get the session factory.
-    
+
     Returns:
         Configured session factory.
-        
+
     Raises:
         RuntimeError: If database is not initialized.
     """
@@ -122,13 +122,13 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency for getting a database session.
-    
+
     Provides a session that is automatically closed after use.
     Use with FastAPI's Depends() for dependency injection.
-    
+
     Yields:
         AsyncSession for database operations.
-        
+
     Raises:
         RuntimeError: If database is not initialized.
     """
@@ -146,9 +146,9 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
 async def get_db_session_context() -> AsyncGenerator[AsyncSession, None]:
     """
     Context manager for database sessions outside of request handlers.
-    
+
     Useful for background tasks and CLI commands.
-    
+
     Yields:
         AsyncSession for database operations.
     """

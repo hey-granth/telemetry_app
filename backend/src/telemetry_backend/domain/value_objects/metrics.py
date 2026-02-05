@@ -13,15 +13,15 @@ from typing import Self
 class SensorMetrics:
     """
     Sensor metrics value object.
-    
+
     Contains validated sensor readings with explicit units:
     - temperature: Degrees Celsius (°C)
     - humidity: Relative humidity percentage (%)
     - voltage: Volts (V)
-    
+
     All fields are optional to support partial readings from devices
     that may not have all sensors.
-    
+
     Attributes:
         temperature: Temperature in degrees Celsius. Valid range: -40 to 85°C.
         humidity: Relative humidity percentage. Valid range: 0 to 100%.
@@ -67,13 +67,13 @@ class SensorMetrics:
     def from_dict(cls, data: dict) -> Self:
         """
         Create metrics from dictionary.
-        
+
         Args:
             data: Dictionary with optional temperature, humidity, voltage keys.
-            
+
         Returns:
             New SensorMetrics instance.
-            
+
         Raises:
             ValueError: If any metric value is out of valid range.
         """
@@ -86,7 +86,7 @@ class SensorMetrics:
     def to_dict(self) -> dict:
         """
         Convert to dictionary, excluding None values.
-        
+
         Returns:
             Dictionary with only non-None metric values.
         """
@@ -102,11 +102,13 @@ class SensorMetrics:
     @property
     def has_any_metric(self) -> bool:
         """Check if at least one metric is present."""
-        return any([
-            self.temperature is not None,
-            self.humidity is not None,
-            self.voltage is not None,
-        ])
+        return any(
+            [
+                self.temperature is not None,
+                self.humidity is not None,
+                self.voltage is not None,
+            ]
+        )
 
     def __str__(self) -> str:
         parts = []

@@ -18,7 +18,7 @@ from telemetry_backend.config.settings import Settings
 def setup_logging(settings: Settings) -> None:
     """
     Configure structured logging for the application.
-    
+
     Args:
         settings: Application settings containing log configuration.
     """
@@ -71,10 +71,10 @@ def setup_logging(settings: Settings) -> None:
 def get_logger(name: str | None = None) -> Any:
     """
     Get a structured logger instance.
-    
+
     Args:
         name: Logger name. If None, uses the calling module's name.
-        
+
     Returns:
         Configured structlog logger.
     """

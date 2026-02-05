@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 class WebSocketManager:
     """
     Manager for WebSocket connections and message broadcasting.
-    
+
     Handles:
     - Connection lifecycle (connect/disconnect)
     - Device-specific subscriptions
@@ -48,7 +48,7 @@ class WebSocketManager:
     async def connect(self, websocket: WebSocket) -> None:
         """
         Accept a new WebSocket connection.
-        
+
         Args:
             websocket: WebSocket connection to accept.
         """
@@ -65,9 +65,9 @@ class WebSocketManager:
     async def disconnect(self, websocket: WebSocket) -> None:
         """
         Handle WebSocket disconnection.
-        
+
         Cleans up all subscriptions for this connection.
-        
+
         Args:
             websocket: WebSocket connection that disconnected.
         """
@@ -92,7 +92,7 @@ class WebSocketManager:
     async def subscribe(self, websocket: WebSocket, device_id: str) -> None:
         """
         Subscribe a connection to a device's updates.
-        
+
         Args:
             websocket: WebSocket connection.
             device_id: Device to subscribe to.
@@ -116,7 +116,7 @@ class WebSocketManager:
     async def unsubscribe(self, websocket: WebSocket, device_id: str) -> None:
         """
         Unsubscribe a connection from a device's updates.
-        
+
         Args:
             websocket: WebSocket connection.
             device_id: Device to unsubscribe from.
@@ -135,7 +135,7 @@ class WebSocketManager:
     async def broadcast_to_device(self, device_id: str, message: dict[str, Any]) -> None:
         """
         Broadcast a message to all subscribers of a device.
-        
+
         Args:
             device_id: Device to broadcast for.
             message: Message payload to send.
@@ -152,11 +152,13 @@ class WebSocketManager:
         async def send_to_subscriber(ws: WebSocket) -> None:
             try:
                 if ws.client_state == WebSocketState.CONNECTED:
-                    await ws.send_json({
-                        "type": "reading",
-                        "device_id": device_id,
-                        "data": message,
-                    })
+                    await ws.send_json(
+                        {
+                            "type": "reading",
+                            "device_id": device_id,
+                            "data": message,
+                        }
+                    )
             except Exception as e:
                 logger.warning(
                     "Failed to send to WebSocket subscriber",
@@ -181,7 +183,7 @@ class WebSocketManager:
     async def send_error(self, websocket: WebSocket, error: str, code: str) -> None:
         """
         Send an error message to a WebSocket connection.
-        
+
         Args:
             websocket: WebSocket connection.
             error: Error message.
@@ -189,27 +191,31 @@ class WebSocketManager:
         """
         try:
             if websocket.client_state == WebSocketState.CONNECTED:
-                await websocket.send_json({
-                    "type": "error",
-                    "error": error,
-                    "code": code,
-                })
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "error": error,
+                        "code": code,
+                    }
+                )
         except Exception as e:
             logger.warning("Failed to send error to WebSocket", error=str(e))
 
     async def send_ack(self, websocket: WebSocket, message: str) -> None:
         """
         Send an acknowledgment message.
-        
+
         Args:
             websocket: WebSocket connection.
             message: Acknowledgment message.
         """
         try:
             if websocket.client_state == WebSocketState.CONNECTED:
-                await websocket.send_json({
-                    "type": "ack",
-                    "message": message,
-                })
+                await websocket.send_json(
+                    {
+                        "type": "ack",
+                        "message": message,
+                    }
+                )
         except Exception as e:
             logger.warning("Failed to send ack to WebSocket", error=str(e))

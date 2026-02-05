@@ -52,7 +52,7 @@ async def ingest_reading(
 ) -> ResponseEnvelope[ReadingDTO]:
     """
     Ingest a sensor reading from an ESP32 device.
-    
+
     Flow:
     1. Validate API key
     2. Validate payload structure

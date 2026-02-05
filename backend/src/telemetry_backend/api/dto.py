@@ -15,7 +15,7 @@ T = TypeVar("T")
 class ResponseEnvelope(BaseModel, Generic[T]):
     """
     Standard response envelope for all API responses.
-    
+
     Provides consistent structure for success and error responses.
     """
 
@@ -81,7 +81,7 @@ class MetricsDTO(BaseModel):
 class IngestPayloadDTO(BaseModel):
     """
     Payload for sensor data ingestion.
-    
+
     Note: Client-provided timestamps are ignored.
     Server assigns UTC timestamp on receipt.
     """

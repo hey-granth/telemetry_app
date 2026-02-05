@@ -20,12 +20,12 @@ logger = get_logger(__name__)
 class AggregationService:
     """
     Service for computing aggregations on sensor data.
-    
+
     Provides:
     - Latest readings per device
     - Statistical aggregations (min, max, avg)
     - Historical data with time range filtering
-    
+
     Design decisions:
     - Aggregations are computed on-demand (not pre-computed)
     - Simple in-memory caching for frequently requested data
@@ -40,7 +40,7 @@ class AggregationService:
     ) -> None:
         """
         Initialize aggregation service.
-        
+
         Args:
             device_repository: Repository for device data access.
             reading_repository: Repository for reading data access.
@@ -56,10 +56,10 @@ class AggregationService:
     async def get_latest_reading(self, device_id: str) -> dict[str, Any] | None:
         """
         Get the most recent reading for a device.
-        
+
         Args:
             device_id: Human-readable device identifier.
-            
+
         Returns:
             Latest reading as dictionary, or None if no readings exist.
         """
@@ -77,14 +77,14 @@ class AggregationService:
     ) -> dict[str, Any]:
         """
         Get aggregated statistics for a device.
-        
+
         Args:
             device_id: Human-readable device identifier.
             range_str: Time range string (e.g., "24h", "7d", "1w").
-            
+
         Returns:
             Dictionary with aggregated statistics.
-            
+
         Raises:
             ValueError: If range string is invalid.
         """
@@ -123,21 +123,21 @@ class AggregationService:
     ) -> list[dict[str, Any]]:
         """
         Get historical readings for a device.
-        
+
         Can specify either:
         - start/end timestamps explicitly
         - range_str for relative time (e.g., "24h")
-        
+
         Args:
             device_id: Human-readable device identifier.
             start: Start timestamp (optional if range_str provided).
             end: End timestamp (optional, defaults to now).
             range_str: Relative time range (e.g., "24h").
             limit: Maximum number of readings to return.
-            
+
         Returns:
             List of readings as dictionaries.
-            
+
         Raises:
             ValueError: If time range cannot be determined.
         """
@@ -172,7 +172,7 @@ class AggregationService:
     async def get_all_devices_summary(self) -> list[dict[str, Any]]:
         """
         Get summary information for all active devices.
-        
+
         Returns:
             List of device summaries with latest reading info.
         """
@@ -189,7 +189,9 @@ class AggregationService:
                 "name": device.name,
                 "is_active": device.is_active,
                 "created_at": device.created_at.isoformat() + "Z",
-                "last_seen_at": device.last_seen_at.isoformat() + "Z" if device.last_seen_at else None,
+                "last_seen_at": device.last_seen_at.isoformat() + "Z"
+                if device.last_seen_at
+                else None,
                 "reading_count": reading_count,
                 "latest_reading": latest.to_dict() if latest else None,
             }
@@ -218,7 +220,7 @@ class AggregationService:
     def clear_cache(self, device_id: str | None = None) -> None:
         """
         Clear cached aggregations.
-        
+
         Args:
             device_id: If provided, only clear cache for this device.
         """

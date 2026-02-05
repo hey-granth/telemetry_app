@@ -15,7 +15,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """
     Application settings loaded from environment variables.
-    
+
     Uses pydantic-settings for type-safe configuration management.
     All sensitive values must be provided via environment variables.
     """
@@ -56,17 +56,13 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
         default="INFO", description="Logging level"
     )
-    log_format: Literal["json", "console"] = Field(
-        default="json", description="Log output format"
-    )
+    log_format: Literal["json", "console"] = Field(default="json", description="Log output format")
 
     # WebSocket
     ws_heartbeat_interval: int = Field(
         default=30, ge=5, le=300, description="WebSocket heartbeat interval in seconds"
     )
-    ws_max_connections: int = Field(
-        default=1000, ge=1, description="Maximum WebSocket connections"
-    )
+    ws_max_connections: int = Field(default=1000, ge=1, description="Maximum WebSocket connections")
 
     # Aggregation
     aggregation_cache_ttl: int = Field(
@@ -104,7 +100,7 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """
     Get cached application settings.
-    
+
     Uses lru_cache to ensure settings are loaded only once.
     """
     return Settings()

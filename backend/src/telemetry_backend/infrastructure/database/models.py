@@ -32,7 +32,7 @@ class Base(DeclarativeBase):
 class DeviceModel(Base):
     """
     ORM model for devices table.
-    
+
     Stores registered IoT devices and their metadata.
     """
 
@@ -103,7 +103,7 @@ class DeviceModel(Base):
 class ReadingModel(Base):
     """
     ORM model for readings table.
-    
+
     Stores immutable sensor readings with server-assigned timestamps.
     Append-only - readings are never updated or deleted.
     """

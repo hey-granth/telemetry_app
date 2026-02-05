@@ -31,7 +31,7 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     Application lifespan manager.
-    
+
     Handles startup and shutdown events:
     - Startup: Initialize database connection pool
     - Shutdown: Close database connections gracefully
@@ -103,11 +103,13 @@ async def validation_exception_handler(
     errors = []
     for error in exc.errors():
         loc = ".".join(str(x) for x in error["loc"][1:])  # Skip 'body' prefix
-        errors.append({
-            "field": loc,
-            "message": error["msg"],
-            "type": error["type"],
-        })
+        errors.append(
+            {
+                "field": loc,
+                "message": error["msg"],
+                "type": error["type"],
+            }
+        )
 
     logger.warning(
         "Validation error",

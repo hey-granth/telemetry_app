@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/app_config.dart';
+import 'core/navigation/app_router.dart';
+import 'core/navigation/app_shell.dart';
 import 'core/theme/app_theme.dart';
-import 'features/devices/presentation/pages/devices_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +34,8 @@ class TelemetryApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
-      home: const DevicesPage(),
+      home: const AppShell(),
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }

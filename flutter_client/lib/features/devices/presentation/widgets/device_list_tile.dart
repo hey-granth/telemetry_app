@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../../domain/models/device.dart';
 
 /// List tile widget for displaying a device in the device list.
@@ -19,70 +21,114 @@ class DeviceListTile extends StatelessWidget {
     final theme = Theme.of(context);
     final latest = device.latestReading;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    return Container(
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.screenPadding,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             children: [
-              // Status indicator
+              // Device icon with status color
               Container(
-                width: 12,
-                height: 12,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: device.isOnline
-                      ? AppTheme.success
-                      : theme.colorScheme.outline,
+                  color: (device.isOnline ? AppColors.online : AppColors.offline)
+                      .withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                ),
+                child: Icon(
+                  Icons.memory_rounded,
+                  color: device.isOnline ? AppColors.online : AppColors.offline,
+                  size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.md),
 
               // Device info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      device.displayName,
-                      style: theme.textTheme.titleMedium,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            device.displayName,
+                            style: theme.textTheme.titleSmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        StatusBadge(
+                          type: device.isOnline
+                              ? StatusType.online
+                              : StatusType.offline,
+                          compact: true,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _buildSubtitle(),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.outline,
-                      ),
+                    const SizedBox(height: AppSpacing.xxs),
+                    Row(
+                      children: [
+                        Text(
+                          _buildSubtitle(),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        if (latest?.metrics != null) ...[
+                          const SizedBox(width: AppSpacing.sm),
+                          _buildMetricsRow(latest!.metrics, theme),
+                        ],
+                      ],
                     ),
                   ],
                 ),
               ),
 
-              // Latest reading
-              if (latest != null) ...[
-                const SizedBox(width: 16),
-                _MetricChip(
-                  icon: Icons.thermostat,
-                  value: latest.metrics.temperature != null
-                      ? '${latest.metrics.temperature!.toStringAsFixed(1)}°'
-                      : '--',
-                  color: AppTheme.temperatureColor,
-                ),
-              ],
-
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Icon(
-                Icons.chevron_right,
-                color: theme.colorScheme.outline,
+                Icons.chevron_right_rounded,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildMetricsRow(Metrics metrics, ThemeData theme) {
+    final items = <Widget>[];
+
+    if (metrics.temperature != null) {
+      items.add(_MetricChip(
+        icon: Icons.thermostat_outlined,
+        value: '${metrics.temperature!.toStringAsFixed(1)}°',
+        color: AppColors.temperature,
+      ));
+    }
+
+    if (metrics.humidity != null) {
+      if (items.isNotEmpty) items.add(const SizedBox(width: AppSpacing.sm));
+      items.add(_MetricChip(
+        icon: Icons.water_drop_outlined,
+        value: '${metrics.humidity!.toStringAsFixed(0)}%',
+        color: AppColors.humidity,
+      ));
+    }
+
+    return Row(mainAxisSize: MainAxisSize.min, children: items);
   }
 
   String _buildSubtitle() {

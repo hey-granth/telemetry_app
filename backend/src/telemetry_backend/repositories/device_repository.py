@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 class DeviceRepository:
     """
     Repository for device persistence operations.
-    
+
     Provides an abstraction over SQLAlchemy for device data access.
     All methods are async for non-blocking I/O.
     """
@@ -29,7 +29,7 @@ class DeviceRepository:
     def __init__(self, session: AsyncSession) -> None:
         """
         Initialize repository with database session.
-        
+
         Args:
             session: SQLAlchemy async session.
         """
@@ -38,10 +38,10 @@ class DeviceRepository:
     async def get_by_id(self, device_id: str) -> Device | None:
         """
         Get device by human-readable device_id.
-        
+
         Args:
             device_id: Human-readable device identifier (e.g., "esp32_01").
-            
+
         Returns:
             Device entity if found, None otherwise.
         """
@@ -57,10 +57,10 @@ class DeviceRepository:
     async def get_by_uuid(self, id: UUID) -> Device | None:
         """
         Get device by UUID.
-        
+
         Args:
             id: Device UUID.
-            
+
         Returns:
             Device entity if found, None otherwise.
         """
@@ -76,10 +76,10 @@ class DeviceRepository:
     async def get_all(self, include_inactive: bool = False) -> list[Device]:
         """
         Get all registered devices.
-        
+
         Args:
             include_inactive: If True, includes deactivated devices.
-            
+
         Returns:
             List of Device entities.
         """
@@ -96,10 +96,10 @@ class DeviceRepository:
     async def exists(self, device_id: str) -> bool:
         """
         Check if device exists.
-        
+
         Args:
             device_id: Human-readable device identifier.
-            
+
         Returns:
             True if device exists, False otherwise.
         """
@@ -110,13 +110,13 @@ class DeviceRepository:
     async def create(self, device: Device) -> Device:
         """
         Create a new device.
-        
+
         Args:
             device: Device entity to persist.
-            
+
         Returns:
             Created Device entity.
-            
+
         Raises:
             IntegrityError: If device_id already exists.
         """
@@ -139,7 +139,7 @@ class DeviceRepository:
     async def update_last_seen(self, device_id: str, timestamp: datetime) -> None:
         """
         Update device's last_seen_at timestamp.
-        
+
         Args:
             device_id: Human-readable device identifier.
             timestamp: New last seen timestamp (UTC).
@@ -155,18 +155,14 @@ class DeviceRepository:
     async def deactivate(self, device_id: str) -> bool:
         """
         Deactivate a device.
-        
+
         Args:
             device_id: Human-readable device identifier.
-            
+
         Returns:
             True if device was deactivated, False if not found.
         """
-        stmt = (
-            update(DeviceModel)
-            .where(DeviceModel.device_id == device_id)
-            .values(is_active=False)
-        )
+        stmt = update(DeviceModel).where(DeviceModel.device_id == device_id).values(is_active=False)
         result = await self._session.execute(stmt)
 
         if result.rowcount > 0:

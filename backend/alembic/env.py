@@ -33,7 +33,7 @@ target_metadata = Base.metadata
 def run_migrations_offline() -> None:
     """
     Run migrations in 'offline' mode.
-    
+
     Generates SQL scripts without connecting to the database.
     """
     url = config.get_main_option("sqlalchemy.url")
@@ -73,7 +73,7 @@ async def run_async_migrations() -> None:
 def run_migrations_online() -> None:
     """
     Run migrations in 'online' mode.
-    
+
     Connects to the database and applies migrations.
     """
     asyncio.run(run_async_migrations())

@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 class ReadingRepository:
     """
     Repository for reading persistence operations.
-    
+
     Provides an abstraction over SQLAlchemy for sensor reading data access.
     Optimized for time-series data patterns:
     - Append-only inserts
@@ -33,7 +33,7 @@ class ReadingRepository:
     def __init__(self, session: AsyncSession) -> None:
         """
         Initialize repository with database session.
-        
+
         Args:
             session: SQLAlchemy async session.
         """
@@ -42,12 +42,12 @@ class ReadingRepository:
     async def create(self, reading: Reading) -> Reading:
         """
         Persist a new reading.
-        
+
         Readings are immutable - once created, they are never updated.
-        
+
         Args:
             reading: Reading entity to persist.
-            
+
         Returns:
             Created Reading entity.
         """
@@ -73,10 +73,10 @@ class ReadingRepository:
     async def get_latest(self, device_id: str) -> Reading | None:
         """
         Get the most recent reading for a device.
-        
+
         Args:
             device_id: Human-readable device identifier.
-            
+
         Returns:
             Latest Reading entity if exists, None otherwise.
         """
@@ -103,12 +103,12 @@ class ReadingRepository:
     ) -> list[Reading]:
         """
         Get readings for a device within a time range.
-        
+
         Args:
             device_id: Human-readable device identifier.
             time_range: Time range for the query.
             limit: Maximum number of readings to return.
-            
+
         Returns:
             List of Reading entities, ordered by timestamp ascending.
         """
@@ -135,39 +135,36 @@ class ReadingRepository:
     ) -> dict[str, Any]:
         """
         Compute aggregated statistics for a device within a time range.
-        
+
         Computes min, max, avg for each metric type.
-        
+
         Args:
             device_id: Human-readable device identifier.
             time_range: Time range for the aggregation.
-            
+
         Returns:
             Dictionary with aggregated statistics.
         """
-        stmt = (
-            select(
-                func.count(ReadingModel.id).label("count"),
-                func.min(ReadingModel.timestamp).label("first_reading"),
-                func.max(ReadingModel.timestamp).label("last_reading"),
-                # Temperature stats
-                func.min(ReadingModel.temperature).label("temp_min"),
-                func.max(ReadingModel.temperature).label("temp_max"),
-                func.avg(ReadingModel.temperature).label("temp_avg"),
-                # Humidity stats
-                func.min(ReadingModel.humidity).label("humidity_min"),
-                func.max(ReadingModel.humidity).label("humidity_max"),
-                func.avg(ReadingModel.humidity).label("humidity_avg"),
-                # Voltage stats
-                func.min(ReadingModel.voltage).label("voltage_min"),
-                func.max(ReadingModel.voltage).label("voltage_max"),
-                func.avg(ReadingModel.voltage).label("voltage_avg"),
-            )
-            .where(
-                ReadingModel.device_id == device_id,
-                ReadingModel.timestamp >= time_range.start,
-                ReadingModel.timestamp <= time_range.end,
-            )
+        stmt = select(
+            func.count(ReadingModel.id).label("count"),
+            func.min(ReadingModel.timestamp).label("first_reading"),
+            func.max(ReadingModel.timestamp).label("last_reading"),
+            # Temperature stats
+            func.min(ReadingModel.temperature).label("temp_min"),
+            func.max(ReadingModel.temperature).label("temp_max"),
+            func.avg(ReadingModel.temperature).label("temp_avg"),
+            # Humidity stats
+            func.min(ReadingModel.humidity).label("humidity_min"),
+            func.max(ReadingModel.humidity).label("humidity_max"),
+            func.avg(ReadingModel.humidity).label("humidity_avg"),
+            # Voltage stats
+            func.min(ReadingModel.voltage).label("voltage_min"),
+            func.max(ReadingModel.voltage).label("voltage_max"),
+            func.avg(ReadingModel.voltage).label("voltage_avg"),
+        ).where(
+            ReadingModel.device_id == device_id,
+            ReadingModel.timestamp >= time_range.start,
+            ReadingModel.timestamp <= time_range.end,
         )
 
         result = await self._session.execute(stmt)
@@ -205,17 +202,14 @@ class ReadingRepository:
     async def count_by_device(self, device_id: str) -> int:
         """
         Count total readings for a device.
-        
+
         Args:
             device_id: Human-readable device identifier.
-            
+
         Returns:
             Total number of readings.
         """
-        stmt = (
-            select(func.count(ReadingModel.id))
-            .where(ReadingModel.device_id == device_id)
-        )
+        stmt = select(func.count(ReadingModel.id)).where(ReadingModel.device_id == device_id)
         result = await self._session.execute(stmt)
         return result.scalar() or 0
 
