@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/state/app_lifecycle.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -19,13 +20,41 @@ import '../widgets/quick_stats_card.dart';
 import '../widgets/recent_devices_list.dart';
 
 /// Overview page showing system status and summary
-class OverviewPage extends ConsumerWidget {
+class OverviewPage extends ConsumerStatefulWidget {
   const OverviewPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OverviewPage> createState() => _OverviewPageState();
+}
+
+class _OverviewPageState extends ConsumerState<OverviewPage> {
+  bool _hasFetched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch devices after first frame if backend is reachable
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchDataIfNeeded();
+    });
+  }
+
+  void _fetchDataIfNeeded() {
+    if (_hasFetched) return;
+
+    final backendStatus = ref.read(backendStatusProvider);
+    if (backendStatus.isReachable) {
+      _hasFetched = true;
+      ref.read(devicesProvider.notifier).fetch();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final devicesAsync = ref.watch(devicesProvider);
     final connectionStatus = ref.watch(connectionStatusProvider);
+    final backendStatus = ref.watch(backendStatusProvider);
+    final appState = ref.watch(appLifecycleProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -33,29 +62,45 @@ class OverviewPage extends ConsumerWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.md),
-            child: ConnectionIndicator(status: connectionStatus),
+            child: ConnectionIndicator(
+              status: backendStatus.isReachable
+                  ? connectionStatus
+                  : ConnectionStatus.disconnected,
+            ),
           ),
         ],
       ),
-      body: devicesAsync.when(
-        loading: () => const _LoadingState(),
-        error: (error, stack) => ErrorView(
-          message: error.toString(),
-          onRetry: () => ref.read(devicesProvider.notifier).refresh(),
-        ),
-        data: (devices) {
-          if (devices.isEmpty) {
-            return _EmptyState(
+      body: appState == AppLifecycleState.degraded && !_hasFetched
+          ? _OfflineState(
+              onRetry: () {
+                setState(() => _hasFetched = false);
+                _fetchDataIfNeeded();
+              },
               onAddDevice: () => _navigateToOnboarding(context),
-            );
-          }
+            )
+          : devicesAsync.when(
+              loading: () => const _LoadingState(),
+              error: (error, stack) => _ErrorStateView(
+                message: error.toString(),
+                onRetry: () {
+                  setState(() => _hasFetched = false);
+                  ref.read(devicesProvider.notifier).fetch();
+                },
+                onAddDevice: () => _navigateToOnboarding(context),
+              ),
+              data: (devices) {
+                if (devices.isEmpty) {
+                  return _EmptyState(
+                    onAddDevice: () => _navigateToOnboarding(context),
+                  );
+                }
 
-          return _ContentState(
-            devices: devices,
-            onAddDevice: () => _navigateToOnboarding(context),
-          );
-        },
-      ),
+                return _ContentState(
+                  devices: devices,
+                  onAddDevice: () => _navigateToOnboarding(context),
+                );
+              },
+            ),
     );
   }
 
@@ -72,6 +117,92 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DevicesEmptyState(onAddDevice: onAddDevice);
+  }
+}
+
+class _OfflineState extends StatelessWidget {
+  const _OfflineState({
+    required this.onRetry,
+    required this.onAddDevice,
+  });
+
+  final VoidCallback onRetry;
+  final VoidCallback onAddDevice;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.screenPadding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 80,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Backend Offline',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'The backend server is not reachable.\nYou can still add devices locally via BLE.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            FilledButton.icon(
+              onPressed: onAddDevice,
+              icon: const Icon(Icons.add),
+              label: const Text('Add Device'),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            OutlinedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry Connection'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorStateView extends StatelessWidget {
+  const _ErrorStateView({
+    required this.message,
+    required this.onRetry,
+    required this.onAddDevice,
+  });
+
+  final String message;
+  final VoidCallback onRetry;
+  final VoidCallback onAddDevice;
+
+  @override
+  Widget build(BuildContext context) {
+    return ErrorView(
+      message: message,
+      onRetry: onRetry,
+      actions: [
+        const SizedBox(height: AppSpacing.md),
+        OutlinedButton.icon(
+          onPressed: onAddDevice,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Device Locally'),
+        ),
+      ],
+    );
   }
 }
 

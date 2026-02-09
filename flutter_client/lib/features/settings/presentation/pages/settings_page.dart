@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/state/theme_provider.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/config/app_config.dart';
 
@@ -14,6 +15,7 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currentThemeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -44,8 +46,8 @@ class SettingsPage extends ConsumerWidget {
           _SettingsTile(
             icon: Icons.palette_outlined,
             title: 'Theme',
-            subtitle: 'System default',
-            onTap: () => _showThemeDialog(context),
+            subtitle: _getThemeModeLabel(currentThemeMode),
+            onTap: () => _showThemeDialog(context, ref, currentThemeMode),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -90,6 +92,17 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
+  String _getThemeModeLabel(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return 'System default';
+      case ThemeMode.light:
+        return 'Light';
+      case ThemeMode.dark:
+        return 'Dark';
+    }
+  }
+
   void _showEditUrlDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -119,7 +132,7 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  void _showThemeDialog(BuildContext context) {
+  void _showThemeDialog(BuildContext context, WidgetRef ref, ThemeMode currentMode) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -130,20 +143,35 @@ class SettingsPage extends ConsumerWidget {
             RadioListTile<ThemeMode>(
               title: const Text('System'),
               value: ThemeMode.system,
-              groupValue: ThemeMode.system,
-              onChanged: (value) => Navigator.of(context).pop(),
+              groupValue: currentMode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(themeModeProvider.notifier).setThemeMode(value);
+                  Navigator.of(context).pop();
+                }
+              },
             ),
             RadioListTile<ThemeMode>(
               title: const Text('Light'),
               value: ThemeMode.light,
-              groupValue: ThemeMode.system,
-              onChanged: (value) => Navigator.of(context).pop(),
+              groupValue: currentMode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(themeModeProvider.notifier).setThemeMode(value);
+                  Navigator.of(context).pop();
+                }
+              },
             ),
             RadioListTile<ThemeMode>(
               title: const Text('Dark'),
               value: ThemeMode.dark,
-              groupValue: ThemeMode.system,
-              onChanged: (value) => Navigator.of(context).pop(),
+              groupValue: currentMode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(themeModeProvider.notifier).setThemeMode(value);
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ],
         ),

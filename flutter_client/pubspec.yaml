@@ -24,6 +24,10 @@ dependencies:
   # Data
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
+  shared_preferences: ^2.2.2
+
+  # BLE
+  flutter_blue_plus: ^1.31.0
 
   # UI
   fl_chart: ^0.66.0

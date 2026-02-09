@@ -38,7 +38,8 @@ class DevicesError extends DevicesState {
 class DevicesNotifier extends AsyncNotifier<List<Device>> {
   @override
   Future<List<Device>> build() async {
-    return _fetchDevices();
+    // Don't auto-fetch on build - return empty list and let UI trigger fetch
+    return [];
   }
 
   Future<List<Device>> _fetchDevices() async {
@@ -47,8 +48,17 @@ class DevicesNotifier extends AsyncNotifier<List<Device>> {
 
     return result.when(
       success: (devices) => devices,
-      failure: (error) => throw error,
+      failure: (error) {
+        // Don't throw - return empty list and let UI handle error display
+        return [];
+      },
     );
+  }
+
+  /// Fetch devices (to be called by UI)
+  Future<void> fetch() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(_fetchDevices);
   }
 
   Future<void> refresh() async {

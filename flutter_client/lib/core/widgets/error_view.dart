@@ -14,6 +14,7 @@ class ErrorView extends StatelessWidget {
     this.onRetry,
     this.retryLabel = 'Try Again',
     this.compact = false,
+    this.actions = const [],
   });
 
   final String message;
@@ -22,6 +23,7 @@ class ErrorView extends StatelessWidget {
   final VoidCallback? onRetry;
   final String retryLabel;
   final bool compact;
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +81,7 @@ class ErrorView extends StatelessWidget {
                 label: Text(retryLabel),
               ),
             ],
+            ...actions,
           ],
         ),
       ),
