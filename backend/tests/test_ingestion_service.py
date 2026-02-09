@@ -4,10 +4,11 @@ from uuid import uuid4
 
 import pytest
 
-from telemetry_backend.domain.entities.device import Device, DeviceStatus
-from telemetry_backend.domain.entities.reading import Reading
-from telemetry_backend.domain.value_objects.metrics import SensorMetrics
-from telemetry_backend.services.ingestion_service import IngestionService
+from app.domain.entities.device import Device, DeviceStatus
+from app.domain.entities.reading import Reading
+from app.domain.value_objects.metrics import SensorMetrics
+from app.services.ingestion_service import IngestionService
+
 
 
 @pytest.fixture

@@ -6,10 +6,10 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-from telemetry_backend.domain.entities.device import Device, DeviceStatus
-from telemetry_backend.domain.entities.reading import Reading
-from telemetry_backend.domain.value_objects.metrics import SensorMetrics
-from telemetry_backend.main import app
+from app.domain.entities.device import Device, DeviceStatus
+from app.domain.entities.reading import Reading
+from app.domain.value_objects.metrics import SensorMetrics
+from app.main import app
 
 
 @pytest_asyncio.fixture
