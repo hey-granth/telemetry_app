@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - Telemetry App</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { primaryColor: '#C8A2C8', primaryTextColor: '#fff', primaryBorderColor: '#C8A2C8', lineColor: '#C8A2C8', secondaryColor: '#111', tertiaryColor: '#111' } });</script>
+</head>
+
+<body>
+    <nav class="sidebar">
+        <a href="index.html" class="brand">Telemetry App</a>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search docs...">
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a href="getting-started.html" class="nav-link">Getting Started</a>
+            </li>
+
+            <div class="nav-section">Technical Guide</div>
+            <li class="nav-item">
+                <a href="architecture.html" class="nav-link active">Architecture</a>
+            </li>
+            <li class="nav-item">
+                <a href="api-reference.html" class="nav-link">API Reference</a>
+            </li>
+            <li class="nav-item">
+                <a href="database.html" class="nav-link">Database Schema</a>
+            </li>
+
+            <div class="nav-section">Support</div>
+            <li class="nav-item">
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>System Architecture</h1>
+        <p class="lead">Design overview of the Telemetry App ecosystem.</p>
+
+        <section id="high-level-design">
+            <h2>High-Level Overview</h2>
+            <p>The system is composed of three main parts: <strong>IoT Devices</strong> (Data Producers), the
+                <strong>Backend API</strong> (Data Processor & Storage), and the <strong>Flutter Client</strong> (Data
+                Consumer).</p>
+
+            <div class="mermaid">
+                graph TD
+                subgraph "IoT Layer"
+                ESP32[ESP32 Device] -->|HTTP POST /ingest| API
+                end
+
+                subgraph "Backend Layer"
+                API[FastAPI Server]
+                DB[(PostgreSQL)]
+                API -->|Read/Write| DB
+                end
+
+                subgraph "Frontend Layer"
+                Flutter[Flutter App]
+                Flutter -->|HTTP GET /history| API
+                Flutter -->|WebSocket /stream| API
+                end
+            </div>
+        </section>
+
+        <section id="data-flow" class="mt-4">
+            <h2>Data Flow</h2>
+
+            <h3>1. Ingestion Pipeline</h3>
+            <p>Sensor data originates from ESP32 devices. The device sends a JSON payload to the <code>/ingest</code>
+                endpoint. The API validates the payload, timestamps it (if missing), and writes it to the database
+                asynchronously.</p>
+
+            <h3>2. Real-time Broadcasting</h3>
+            <p>Upon successful ingestion, the API pushes the new data point to a <strong>WebSocket Broadcaster</strong>.
+                Connected clients (Flutter apps) listening on the specific device channel receive this update instantly.
+            </p>
+
+            <div class="mermaid">
+                sequenceDiagram
+                participant ESP32
+                participant API
+                participant DB
+                participant Client
+
+                ESP32->>API: POST /ingest {temp: 24.5}
+                activate API
+                API->>DB: INSERT INTO readings
+                API->>Client: WebSocket Message {temp: 24.5}
+                API-->>ESP32: 201 Created
+                deactivate API
+            </div>
+        </section>
+
+        <section id="backend-patterns" class="mt-4">
+            <h2>Backend Design Patterns</h2>
+            <p>The FastAPI backend uses a <strong>Clean Architecture</strong> approach, separating concerns into:</p>
+            <ul>
+                <li><strong>API Layer</strong> (Routes, Controllers): Handles HTTP requests and responses.</li>
+                <li><strong>Service Layer</strong> (Business Logic): Orchestrates data flow and applies rules.</li>
+                <li><strong>Repository Layer</strong> (Data Access): Abstraction over database queries.</li>
+                <li><strong>Domain Layer</strong> (Entities): Core business objects and types.</li>
+            </ul>
+        </section>
+
+        <section id="frontend-patterns" class="mt-4">
+            <h2>Frontend Architecture</h2>
+            <p>The Flutter client uses <strong>Riverpod</strong> for state management. Features include:</p>
+            <ul>
+                <li><strong>Repository Pattern:</strong> Decouples UI from data sources.</li>
+                <li><strong>Real-time State:</strong> StreamProviders automatically update UI on WebSocket events.</li>
+                <li><strong>Offline Caching:</strong> Local storage for critical data using SharedPreferences/SQLite
+                    (future).</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

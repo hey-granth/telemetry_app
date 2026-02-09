@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting - Telemetry App</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+    <nav class="sidebar">
+        <a href="index.html" class="brand">Telemetry App</a>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search docs...">
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a href="getting-started.html" class="nav-link">Getting Started</a>
+            </li>
+
+            <div class="nav-section">Technical Guide</div>
+            <li class="nav-item">
+                <a href="architecture.html" class="nav-link">Architecture</a>
+            </li>
+            <li class="nav-item">
+                <a href="api-reference.html" class="nav-link">API Reference</a>
+            </li>
+            <li class="nav-item">
+                <a href="database.html" class="nav-link">Database Schema</a>
+            </li>
+
+            <div class="nav-section">Support</div>
+            <li class="nav-item">
+                <a href="troubleshooting.html" class="nav-link active">Troubleshooting</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>Troubleshooting</h1>
+        <p class="lead">Solutions for common issues encountered during development and deployment.</p>
+
+        <section id="backend-issues">
+            <h2>Backend Issues</h2>
+
+            <div class="card">
+                <h3>Database Connection Failed</h3>
+                <p><strong>Symptom:</strong> API fails to start with <code>ConnectionRefusedError</code> or
+                    <code>FATAL: role "user" does not exist</code>.</p>
+                <p><strong>Solution:</strong></p>
+                <ol>
+                    <li>Ensure Docker containers are running: <code>docker-compose ps</code>.</li>
+                    <li>Check credentials in <code>.env</code> file.</li>
+                    <li>If the database volume is corrupted, try removing it: <code>docker-compose down -v</code>.</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>Rate Limiting Errors</h3>
+                <p><strong>Symptom:</strong> API returns <code>429 Too Many Requests</code>.</p>
+                <p><strong>Solution:</strong></p>
+                <p>The API rate limits requests per IP. Check your implementation for tight loops. For development, you
+                    can increase the limit in <code>backend/app/config.py</code>.</p>
+            </div>
+
+            <div class="card">
+                <h3>Authentication Failed</h3>
+                <p><strong>Symptom:</strong> API returns <code>401 Unauthorized</code>.</p>
+                <p><strong>Solution:</strong></p>
+                <p>Verify you are sending the <code>X-API-Key</code> header correctly. Double check the key against the
+                    database.</p>
+            </div>
+        </section>
+
+        <section id="frontend-issues" class="mt-4">
+            <h2>Frontend Issues</h2>
+
+            <div class="card">
+                <h3>WebSocket Connection Failed</h3>
+                <p><strong>Symptom:</strong> Connection error in debug console.</p>
+                <p><strong>Solution:</strong></p>
+                <p>If running on Android Emulator, use <code>10.0.2.2</code> instead of <code>localhost</code>. For iOS
+                    Simulator, <code>localhost</code> works fine. Check <code>lib/config/api_config.dart</code>.</p>
+            </div>
+
+            <div class="card">
+                <h3>Build Errors</h3>
+                <p><strong>Symptom:</strong> <code>CocoaPods not installed</code> or similar native dependency errors.
+                </p>
+                <p><strong>Solution:</strong></p>
+                <pre><code>cd flutter_client/ios
+pod install
+cd ..
+flutter clean
+flutter pub get</code></pre>
+            </div>
+        </section>
+
+        <section id="logs" class="mt-4">
+            <h2>Checking Logs</h2>
+            <p>To view real-time logs for backend services:</p>
+            <pre><code>docker-compose logs -f api</code></pre>
+        </section>
+    </main>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

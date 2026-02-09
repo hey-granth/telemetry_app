@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - Telemetry App</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+    <nav class="sidebar">
+        <a href="index.html" class="brand">Telemetry App</a>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search docs...">
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a href="getting-started.html" class="nav-link active">Getting Started</a>
+            </li>
+
+            <div class="nav-section">Technical Guide</div>
+            <li class="nav-item">
+                <a href="architecture.html" class="nav-link">Architecture</a>
+            </li>
+            <li class="nav-item">
+                <a href="api-reference.html" class="nav-link">API Reference</a>
+            </li>
+            <li class="nav-item">
+                <a href="database.html" class="nav-link">Database Schema</a>
+            </li>
+
+            <div class="nav-section">Support</div>
+            <li class="nav-item">
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>Getting Started</h1>
+        <p class="lead">Follow this guide to set up the Telemetry App development environment on your local machine.</p>
+
+        <section id="prerequisites">
+            <h2>Prerequisites</h2>
+            <p>Ensure you have the following tools installed:</p>
+            <ul>
+                <li><a href="https://www.docker.com/products/docker-desktop/" target="_blank">Docker & Docker
+                        Compose</a></li>
+                <li><a href="https://www.python.org/downloads/" target="_blank">Python 3.11+</a> (for backend dev)</li>
+                <li><a href="https://flutter.dev/docs/get-started/install" target="_blank">Flutter SDK</a> (Stable
+                    channel)</li>
+                <li><a href="https://git-scm.com/" target="_blank">Git</a></li>
+            </ul>
+        </section>
+
+        <section id="backend-setup" class="mt-4">
+            <h2>Backend Setup</h2>
+            <p>The backend services (API + Database) are containerized for easy setup.</p>
+
+            <h3>1. Environment Configuration</h3>
+            <p>Navigate to the <code>backend</code> directory and create your environment file:</p>
+            <pre><code>cd backend
+cp .env.example .env</code></pre>
+
+            <div class="note">
+                Review the <code>.env</code> file and update any secrets or ports if necessary.
+            </div>
+
+            <h3>2. Start Services</h3>
+            <p>Run the following command to start the backend services:</p>
+            <pre><code>docker-compose up -d --build</code></pre>
+
+            <p>The API will be available at <a href="http://localhost:8000/docs"
+                    target="_blank">http://localhost:8000</a>.</p>
+        </section>
+
+        <section id="frontend-setup" class="mt-4">
+            <h2>Frontend Setup</h2>
+            <p>The Flutter client runs on iOS, Android, and Web.</p>
+
+            <h3>1. Install Dependencies</h3>
+            <pre><code>cd flutter_client
+flutter pub get</code></pre>
+
+            <h3>2. Run the App</h3>
+            <p>To run on Chrome (Web):</p>
+            <pre><code>flutter run -d chrome</code></pre>
+
+            <p>To run on a connected device or emulator:</p>
+            <pre><code>flutter run</code></pre>
+        </section>
+
+        <section id="verification" class="mt-4">
+            <h2>Verification</h2>
+            <p>To verify the setup is working:</p>
+            <ol>
+                <li>Open the backend API docs at <code>http://localhost:8000/docs</code>.</li>
+                <li>Try the <code>GET /api/v1/health</code> endpoint. It should return
+                    <code>{ "status": "healthy" }</code>.</li>
+                <li>Launch the Flutter app and ensure it connects without network errors.</li>
+            </ol>
+        </section>
+    </main>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

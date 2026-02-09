@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Schema - Telemetry App</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { primaryColor: '#C8A2C8', primaryTextColor: '#fff', primaryBorderColor: '#C8A2C8', lineColor: '#C8A2C8', secondaryColor: '#111', tertiaryColor: '#111' } });</script>
+</head>
+
+<body>
+    <nav class="sidebar">
+        <a href="index.html" class="brand">Telemetry App</a>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search docs...">
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a href="getting-started.html" class="nav-link">Getting Started</a>
+            </li>
+
+            <div class="nav-section">Technical Guide</div>
+            <li class="nav-item">
+                <a href="architecture.html" class="nav-link">Architecture</a>
+            </li>
+            <li class="nav-item">
+                <a href="api-reference.html" class="nav-link">API Reference</a>
+            </li>
+            <li class="nav-item">
+                <a href="database.html" class="nav-link active">Database Schema</a>
+            </li>
+
+            <div class="nav-section">Support</div>
+            <li class="nav-item">
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>Database Schema</h1>
+        <p class="lead">PostgreSQL data model for devices and sensor readings.</p>
+
+        <section id="erd">
+            <h2>Entity Relationship Diagram</h2>
+            <div class="mermaid">
+                erDiagram
+                DEVICES ||--o{ READINGS : "streams"
+                DEVICES {
+                uuid id PK
+                string name
+                string device_key UK
+                string status
+                timestamp created_at
+                }
+                READINGS {
+                uuid id PK
+                uuid device_id FK
+                float temperature
+                float humidity
+                float voltage
+                timestamp recorded_at
+                }
+            </div>
+        </section>
+
+        <section id="tables" class="mt-4">
+            <h2>Tables</h2>
+
+            <div class="card">
+                <h3>DEVICES</h3>
+                <p>Stores registered IoT devices and their authentication keys.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>UUID</td>
+                            <td>Primary Key</td>
+                        </tr>
+                        <tr>
+                            <td><code>name</code></td>
+                            <td>VARCHAR(255)</td>
+                            <td>Human-readable name</td>
+                        </tr>
+                        <tr>
+                            <td><code>device_key</code></td>
+                            <td>VARCHAR(64)</td>
+                            <td>Unique API key for authentication</td>
+                        </tr>
+                        <tr>
+                            <td><code>status</code></td>
+                            <td>VARCHAR(20)</td>
+                            <td>Current state (online/offline)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>READINGS</h3>
+                <p>Time-series data for sensor measurements.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>UUID</td>
+                            <td>Primary Key</td>
+                        </tr>
+                        <tr>
+                            <td><code>device_id</code></td>
+                            <td>UUID</td>
+                            <td>Foreign Key -> DEVICES.id</td>
+                        </tr>
+                        <tr>
+                            <td><code>temperature</code></td>
+                            <td>FLOAT</td>
+                            <td>Celsius value</td>
+                        </tr>
+                        <tr>
+                            <td><code>recorded_at</code></td>
+                            <td>TIMESTAMPTZ</td>
+                            <td>UTC Timestamp of the reading</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="performance" class="mt-4">
+            <h2>Performance Optimization</h2>
+            <ul>
+                <li><strong>Indexes:</strong> The <code>readings</code> table is indexed by
+                    <code>(device_id, recorded_at)</code> to optimize time-range queries for specific devices.</li>
+                <li><strong>Partitioning:</strong> (Future) Partitioning by time (monthly) is planned for the
+                    <code>readings</code> table to handle large datasets.</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="assets/script.js"></script>
+</body>
+
+</html>

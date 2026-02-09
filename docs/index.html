@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telemetry App Documentation</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="sidebar">
+        <a href="index.html" class="brand">Telemetry App</a>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search docs...">
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a href="getting-started.html" class="nav-link">Getting Started</a>
+            </li>
+            
+            <div class="nav-section">Technical Guide</div>
+            <li class="nav-item">
+                <a href="architecture.html" class="nav-link">Architecture</a>
+            </li>
+            <li class="nav-item">
+                <a href="api-reference.html" class="nav-link">API Reference</a>
+            </li>
+            <li class="nav-item">
+                <a href="database.html" class="nav-link">Database Schema</a>
+            </li>
+            
+            <div class="nav-section">Support</div>
+            <li class="nav-item">
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>Telemetry App Documentation</h1>
+        <p class="lead">Production-grade IoT data platform for sensor data ingestion, persistence, aggregation, and realtime streaming.</p>
+
+        <div class="card">
+            <h2>Project Overview</h2>
+            <p>The Telemetry App is a comprehensive solution designed to handle high-volume sensor data from IoT devices (specifically ESP32). It provides a robust backend for data ingestion and a modern Flutter-based frontend for real-time visualization.</p>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>Backend</h3>
+                <p>Built with <strong>FastAPI</strong> and <strong>PostgreSQL</strong>. Handles device authentication, high-throughput data ingestion, and provides REST APIs and WebSocket streams.</p>
+                <a href="architecture.html" class="text-lilac">Learn more →</a>
+            </div>
+            <div class="card">
+                <h3>Frontend</h3>
+                <p>A cross-platform <strong>Flutter</strong> application. Features real-time charts, device management, and alert configuration. Uses Riverpod for state management.</p>
+                <a href="getting-started.html" class="text-lilac">Setup Guide →</a>
+            </div>
+        </div>
+
+        <h2>Key Features</h2>
+        <ul>
+            <li><strong>Real-time Streaming:</strong> Live data updates via WebSockets.</li>
+            <li><strong>Scalable Ingestion:</strong> Asynchronous processing pipeline.</li>
+            <li><strong>Device Management:</strong> Secure provisioning and key management.</li>
+            <li><strong>Historical Data:</strong> Efficient storage and querying of time-series data.</li>
+        </ul>
+
+        <div class="note mt-4">
+            <strong>Note:</strong> This documentation covers version 1.0.0 of the Telemetry App.
+        </div>
+    </main>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - Telemetry App</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+    <nav class="sidebar">
+        <a href="index.html" class="brand">Telemetry App</a>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search docs...">
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a href="getting-started.html" class="nav-link">Getting Started</a>
+            </li>
+
+            <div class="nav-section">Technical Guide</div>
+            <li class="nav-item">
+                <a href="architecture.html" class="nav-link">Architecture</a>
+            </li>
+            <li class="nav-item">
+                <a href="api-reference.html" class="nav-link active">API Reference</a>
+            </li>
+            <li class="nav-item">
+                <a href="database.html" class="nav-link">Database Schema</a>
+            </li>
+
+            <div class="nav-section">Support</div>
+            <li class="nav-item">
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>API Reference</h1>
+        <p class="lead">Complete documentation for the Telemetry App REST API and WebSocket streams.</p>
+
+        <section id="authentication">
+            <h2>Authentication</h2>
+            <p>All API requests must include an API Key in the header.</p>
+            <div class="card">
+                <strong>Header:</strong> <code>X-API-Key: &lt;your-api-key&gt;</code>
+            </div>
+        </section>
+
+        <section id="base-url" class="mt-4">
+            <h2>Base URL</h2>
+            <pre><code>http://localhost:8000/api/v1</code></pre>
+        </section>
+
+        <section id="endpoints" class="mt-4">
+            <h2>Endpoints</h2>
+
+            <div class="card">
+                <h3>Ingest Sensor Data</h3>
+                <span class="method post">POST</span> <code>/ingest</code>
+                <p>Submit new sensor readings from an IoT device.</p>
+
+                <h4>Request Body</h4>
+                <pre><code>{
+  "device_id": "esp32-001",
+  "temperature": 25.5,
+  "humidity": 60.0,
+  "voltage": 3.3,
+  "timestamp": "2024-01-15T10:30:00Z" // Optional
+}</code></pre>
+
+                <h4>Response (201 Created)</h4>
+                <pre><code>{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "accepted"
+}</code></pre>
+            </div>
+
+            <div class="card">
+                <h3>Check System Health</h3>
+                <span class="method get">GET</span> <code>/health</code>
+                <p>Verify that the API and Database are operational.</p>
+
+                <h4>Response (200 OK)</h4>
+                <pre><code>{
+  "status": "healthy",
+  "database": "connected",
+  "version": "1.0.0"
+}</code></pre>
+            </div>
+
+            <div class="card">
+                <h3>List Devices</h3>
+                <span class="method get">GET</span> <code>/devices</code>
+                <p>Retrieve a list of all registered devices.</p>
+
+                <h4>Response (200 OK)</h4>
+                <pre><code>[
+  {
+    "id": "esp32-001",
+    "name": "Living Room Sensor",
+    "status": "online",
+    "last_seen": "2024-01-15T10:30:00Z"
+  }
+]</code></pre>
+            </div>
+        </section>
+
+        <section id="websockets" class="mt-4">
+            <h2>Real-time Streams</h2>
+            <p>Connect to WebSocket endpoints to receive live updates.</p>
+
+            <div class="card">
+                <h3>Device Stream</h3>
+                <span class="method ws">WS</span> <code>/stream/{device_id}</code>
+                <p>Subscribe to updates for a specific device.</p>
+
+                <h4>Events</h4>
+                <pre><code>// On new reading
+{
+  "type": "reading",
+  "data": {
+    "temperature": 25.6,
+    "humidity": 59.8,
+    "timestamp": "..."
+  }
+}</code></pre>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/script.js"></script>
+    <style>
+        .method {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            color: #000;
+        }
+
+        .method.post {
+            background-color: #4caf50;
+        }
+
+        .method.get {
+            background-color: #2196f3;
+        }
+
+        .method.ws {
+            background-color: #9c27b0;
+            color: #fff;
+        }
+    </style>
+</body>
+
+</html>
