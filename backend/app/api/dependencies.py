@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import Depends, Header, HTTPException, status
 
 from app.config.settings import Settings, get_settings
-from app.infrastructure.database.connection import DatabaseSession
+from app.db import DatabaseSession
 from app.infrastructure.websocket.manager import WebSocketManager
 from app.repositories.device_repository import DeviceRepository
 from app.repositories.reading_repository import ReadingRepository

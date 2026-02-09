@@ -19,7 +19,7 @@ from app.api.ingest import router as ingest_router
 from app.api.realtime import router as realtime_router
 from app.config.logging import get_logger, setup_logging
 from app.config.settings import get_settings
-from app.infrastructure.database import close_database, init_database
+from app.db import close_database, init_database
 
 # Initialize settings and logging
 settings = get_settings()

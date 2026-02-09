@@ -14,7 +14,7 @@ from app.config.logging import get_logger
 from app.domain.entities.reading import Reading
 from app.domain.value_objects.metrics import SensorMetrics
 from app.domain.value_objects.time_range import TimeRange
-from app.infrastructure.database.models import ReadingModel
+from app.db import ReadingModel
 
 logger = get_logger(__name__)
 

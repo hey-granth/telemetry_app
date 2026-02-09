@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.logging import get_logger
 from app.domain.entities.device import Device
-from app.infrastructure.database.models import DeviceModel
+from app.db import DeviceModel
 
 logger = get_logger(__name__)
 
