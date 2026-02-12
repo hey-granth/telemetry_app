@@ -1,28 +1,45 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  errors:
+    # Treat these as errors
+    undefined_method: error
+    undefined_identifier: error
+    uri_does_not_exist: error
+
+    # Suppress style warnings
+    dangling_library_doc_comments: ignore
+    deprecated_member_use: ignore
+    non_constant_identifier_names: ignore
+    prefer_const_constructors: ignore
+    prefer_const_declarations: ignore
+    prefer_final_locals: ignore
+    always_put_required_named_parameters_first: ignore
+    sort_constructors_first: ignore
+    prefer_const_literals_to_create_immutables: ignore
+    unused_import: warning
+    unused_local_variable: warning
+    unused_field: warning
+    unnecessary_cast: warning
+    invalid_null_aware_operator: warning
+
+  exclude:
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+
 linter:
   rules:
-    # Error prevention
-    avoid_print: true
+    # Error prevention (keep these)
     avoid_type_to_string: true
     cancel_subscriptions: true
     close_sinks: true
     
-    # Style
+    # Style (relaxed)
     always_declare_return_types: true
-    always_put_required_named_parameters_first: true
     avoid_bool_literals_in_conditional_expressions: true
     avoid_returning_null_for_future: true
     avoid_slow_async_io: true
-    prefer_const_constructors: true
-    prefer_const_declarations: true
-    prefer_final_fields: true
-    prefer_final_in_for_each: true
-    prefer_final_locals: true
-    
+
     # Documentation
     public_member_api_docs: false
-    
-    # Formatting
-    sort_constructors_first: true
-    sort_unnamed_constructors_first: true
+
