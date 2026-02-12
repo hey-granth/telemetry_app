@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../providers/wifi_providers.dart';
 
 /// WiFi credentials page
@@ -51,7 +50,6 @@ class _WifiCredentialsPageState extends ConsumerState<WifiCredentialsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final networksState = ref.watch(wifiNetworksProvider);
 
     return Scaffold(

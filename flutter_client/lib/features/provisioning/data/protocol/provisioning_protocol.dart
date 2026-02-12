@@ -309,7 +309,7 @@ class ProvisioningProtocol {
         },
       );
     } catch (e) {
-      subscription?.cancel();
+      subscription.cancel();
       rethrow;
     }
   }

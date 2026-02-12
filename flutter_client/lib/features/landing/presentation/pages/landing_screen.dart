@@ -10,7 +10,6 @@ import '../../../../core/state/app_lifecycle.dart';
 import '../../../../core/state/health_check_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/widgets/app_button.dart';
 
 /// Landing screen
 class LandingScreen extends ConsumerStatefulWidget {
@@ -68,7 +67,6 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final backendStatus = ref.watch(backendStatusProvider);
     final isChecking = !_hasChecked || backendStatus.lastChecked == null;
 

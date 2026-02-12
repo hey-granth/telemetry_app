@@ -117,6 +117,7 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
   final EstablishSecureSessionUseCase _establishSecureSessionUseCase;
   final ScanWiFiNetworksUseCase _scanWiFiNetworksUseCase;
   final ProvisionWiFiUseCase _provisionWiFiUseCase;
+  // ignore: unused_field
   final GetProvisioningStatusUseCase _getProvisioningStatusUseCase;
   final SendCustomDataUseCase _sendCustomDataUseCase;
   final ParseQrCodeUseCase _parseQrCodeUseCase;
@@ -125,7 +126,7 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
 
   /// Start scanning for devices
   Future<void> startDeviceScan({Duration? timeout}) async {
-    _logger.i('Starting device scan');
+    _logger.i('🔍 Starting device scan');
 
     state = state.copyWith(
       phase: ProvisioningPhase.scanningDevices,
@@ -134,30 +135,41 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
     );
 
     try {
+      _logger.i('🔍 Calling scanForDevicesUseCase...');
+      var deviceCount = 0;
+
       await for (final device in _scanForDevicesUseCase(timeout: timeout)) {
+        deviceCount++;
+        _logger.i('✅ Device discovered: ${device.name} (${device.id}) - RSSI: ${device.rssi}dBm');
+
         // Add or update device in list
         final devices = List<ProvisioningDevice>.from(state.discoveredDevices);
         final index = devices.indexWhere((d) => d.id == device.id);
 
         if (index >= 0) {
+          _logger.d('🔄 Updating existing device: ${device.name}');
           devices[index] = device;
         } else {
+          _logger.d('➕ Adding new device: ${device.name}');
           devices.add(device);
         }
 
         state = state.copyWith(discoveredDevices: devices);
+        _logger.d('📋 Total devices in list: ${devices.length}');
       }
 
       state = state.copyWith(phase: ProvisioningPhase.idle);
-      _logger.i('Device scan completed');
-    } catch (e) {
+      _logger.i('✅ Device scan completed - Found $deviceCount devices');
+    } catch (e, stackTrace) {
+      _logger.e('❌ Device scan failed: $e');
+      _logger.e('Stack trace: $stackTrace');
       _handleError(e);
     }
   }
 
   /// Connect to device
   Future<void> connectToDevice(ProvisioningDevice device) async {
-    _logger.i('Connecting to device: ${device.name}');
+    _logger.i('🔌 Connecting to device: ${device.name}');
 
     state = state.copyWith(
       phase: ProvisioningPhase.connecting,
@@ -167,6 +179,7 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
     );
 
     try {
+      _logger.d('🔌 Calling connectToDeviceUseCase...');
       await _connectToDeviceUseCase(device);
 
       state = state.copyWith(
@@ -174,15 +187,17 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
         progress: 0.2,
       );
 
-      _logger.i('Connected successfully');
-    } catch (e) {
+      _logger.i('✅ Connected successfully to ${device.name}');
+    } catch (e, stackTrace) {
+      _logger.e('❌ Connection failed: $e');
+      _logger.e('Stack trace: $stackTrace');
       _handleError(e);
     }
   }
 
   /// Establish secure session
   Future<void> establishSecureSession({required String proofOfPossession}) async {
-    _logger.i('Establishing secure session');
+    _logger.i('🔐 Establishing secure session with PoP');
 
     state = state.copyWith(
       phase: ProvisioningPhase.establishingSession,
@@ -191,6 +206,7 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
     );
 
     try {
+      _logger.d('🔐 Calling establishSecureSessionUseCase...');
       await _establishSecureSessionUseCase(
         proofOfPossession: proofOfPossession,
       );
@@ -200,15 +216,17 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
         progress: 0.4,
       );
 
-      _logger.i('Secure session established');
-    } catch (e) {
+      _logger.i('✅ Secure session established');
+    } catch (e, stackTrace) {
+      _logger.e('❌ Secure session failed: $e');
+      _logger.e('Stack trace: $stackTrace');
       _handleError(e);
     }
   }
 
   /// Scan for Wi-Fi networks
   Future<void> scanWiFiNetworks() async {
-    _logger.i('Scanning Wi-Fi networks');
+    _logger.i('📡 Scanning Wi-Fi networks');
 
     state = state.copyWith(
       phase: ProvisioningPhase.scanningWiFi,
@@ -217,6 +235,7 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
     );
 
     try {
+      _logger.d('📡 Calling scanWiFiNetworksUseCase...');
       final networks = await _scanWiFiNetworksUseCase();
 
       state = state.copyWith(
@@ -225,15 +244,20 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
         progress: 0.6,
       );
 
-      _logger.i('Found ${networks.length} networks');
-    } catch (e) {
+      _logger.i('✅ Found ${networks.length} Wi-Fi networks');
+      for (final network in networks) {
+        _logger.d('  - ${network.ssid} (${network.rssi}dBm, ${network.authMode.name})');
+      }
+    } catch (e, stackTrace) {
+      _logger.e('❌ Wi-Fi scan failed: $e');
+      _logger.e('Stack trace: $stackTrace');
       _handleError(e);
     }
   }
 
   /// Provision Wi-Fi
   Future<void> provisionWiFi(WiFiCredentials credentials) async {
-    _logger.i('Provisioning Wi-Fi');
+    _logger.i('📶 Provisioning Wi-Fi: ${credentials.ssid}');
 
     state = state.copyWith(
       phase: ProvisioningPhase.sendingCredentials,
@@ -243,10 +267,12 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
 
     try {
       // Send credentials and apply config
+      _logger.d('📶 Sending credentials...');
       state = state.copyWith(phase: ProvisioningPhase.applyingConfig);
       await _provisionWiFiUseCase(credentials);
 
       // Verify provisioning
+      _logger.d('✓ Verifying provisioning...');
       state = state.copyWith(
         phase: ProvisioningPhase.verifying,
         progress: 0.9,
@@ -257,8 +283,10 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
         progress: 1.0,
       );
 
-      _logger.i('Provisioning completed successfully');
-    } catch (e) {
+      _logger.i('✅ Provisioning completed successfully');
+    } catch (e, stackTrace) {
+      _logger.e('❌ Provisioning failed: $e');
+      _logger.e('Stack trace: $stackTrace');
       _handleError(e);
     }
   }

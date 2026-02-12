@@ -44,7 +44,7 @@ class DeviceRepositoryImpl implements DeviceRepository {
     final result = await _apiClient.get<List<dynamic>>('/devices');
 
     return result.map((data) {
-      return (data as List<dynamic>)
+      return data
           .map((json) => Device.fromJson(json as Map<String, dynamic>))
           .toList();
     });
@@ -99,7 +99,7 @@ class DeviceRepositoryImpl implements DeviceRepository {
     );
 
     return result.map((data) {
-      return (data as List<dynamic>)
+      return data
           .map((json) => Reading.fromJson(json as Map<String, dynamic>))
           .toList();
     });

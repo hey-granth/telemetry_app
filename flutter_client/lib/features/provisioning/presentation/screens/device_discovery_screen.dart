@@ -3,8 +3,9 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import '../../../../core/errors/provisioning_errors.dart';
+import '../../../../core/utils/permission_helper.dart';
 import '../../domain/entities/provisioning_entities.dart';
 import '../providers/esp32_provisioning_providers.dart';
 import '../state/provisioning_state.dart';
@@ -29,18 +30,25 @@ class _DeviceDiscoveryScreenState
   }
 
   Future<void> _checkPermissionsAndScan() async {
-    // Check and request permissions
-    final bluetoothStatus = await Permission.bluetoothScan.request();
-    final locationStatus = await Permission.location.request();
+    // Check if permissions are required on this platform
+    if (!PermissionHelper.isPermissionHandlingSupported) {
+      debugPrint('Platform does not require permission handling - starting scan');
+      _startScan();
+      return;
+    }
 
-    if (bluetoothStatus.isGranted && locationStatus.isGranted) {
+    // Request permissions
+    final granted = await PermissionHelper.checkAndRequestBlePermissions();
+
+    if (granted) {
       _startScan();
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Bluetooth and location permissions required'),
+            content: Text('Bluetooth and location permissions required for BLE scanning'),
             backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
           ),
         );
       }
@@ -132,12 +140,45 @@ class _DeviceDiscoveryScreenState
 
     return Container(
       padding: const EdgeInsets.all(16),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+      child: Column(
         children: [
-          CircularProgressIndicator(),
-          SizedBox(width: 16),
-          Text('Scanning for devices...'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Scanning for ESP32 devices...',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Found ${state.discoveredDevices.length} device(s)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Make sure your ESP32 is powered on and advertising',
+            style: TextStyle(
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -153,13 +194,26 @@ class _DeviceDiscoveryScreenState
             Icon(Icons.bluetooth_searching, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             const Text(
-              'No devices found',
+              'No ESP32 devices found',
               style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
             const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                'Make sure:\n'
+                '• ESP32 is powered on\n'
+                '• Device is in provisioning mode\n'
+                '• Bluetooth is enabled\n'
+                '• You\'re within range',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 16),
             const Text(
               'Tap the refresh button to scan again',
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ],
         ),

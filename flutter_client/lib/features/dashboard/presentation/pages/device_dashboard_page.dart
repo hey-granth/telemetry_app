@@ -3,11 +3,9 @@
 /// Displays live sensor data and historical charts for a single device.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/connection_indicator.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/metric_display.dart';

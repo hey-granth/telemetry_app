@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/networking/api_client.dart';
 import '../../../devices/presentation/providers/device_providers.dart';
 
 /// Provisioning steps

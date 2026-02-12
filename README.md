@@ -43,12 +43,19 @@ A production-grade IoT data platform with three decoupled components: FastAPI ba
   - Real-time sensor data visualization
   - Historical data charts
   - WebSocket live streaming
+  - **ESP32 BLE Provisioning** (Security 2 with SRP6a)
+- **See**: [Flutter Client README](flutter_client/README.md)
+- **ESP32 Provisioning**: [Provisioning Guide](flutter_client/PROVISIONING.md)
 
 ### ESP32 Devices
 
 - **Protocol**: HTTP POST for data ingestion
 - **Authentication**: API key-based
-- **See**: [ESP32 Protocol Documentation](docs/ESP32_PROTOCOL.md)
+- **Provisioning**: BLE with Security 2 (SRP6a)
+- **See**: 
+  - [ESP32 Protocol Documentation](docs/ESP32_PROTOCOL.md)
+  - [ESP32 Firmware Guide](docs/ESP32_FIRMWARE.md)
+  - [BLE Provisioning Guide](flutter_client/PROVISIONING.md)
 
 ## Quick Start
 

@@ -46,7 +46,6 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
   Widget build(BuildContext context) {
     final devicesAsync = ref.watch(devicesProvider);
     final backendStatus = ref.watch(backendStatusProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(

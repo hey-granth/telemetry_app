@@ -42,43 +42,52 @@ class ProvisioningRepositoryImpl implements ProvisioningRepository {
         throw const BleError('Bluetooth is turned off', isRecoverable: true);
       }
 
-      // Start scanning
-      final controller = StreamController<ProvisioningDevice>();
+      // Track discovered devices to avoid duplicates
+      final discoveredIds = <String>{};
       final scanTimeout = timeout ?? const Duration(seconds: 30);
 
+      _logger.i('Starting BLE scan with ${scanTimeout.inSeconds}s timeout');
+
+      // Start scanning
       await FlutterBluePlus.startScan(
         timeout: scanTimeout,
         androidUsesFineLocation: true,
       );
 
-      _scanSubscription = FlutterBluePlus.scanResults.listen(
-        (results) {
-          for (final result in results) {
-            // Filter for provisioning devices
-            if (_isProvisioningDevice(result)) {
+      // Listen to scan results and yield devices as discovered
+      await for (final results in FlutterBluePlus.scanResults) {
+        for (final result in results) {
+          // Filter for provisioning devices
+          if (_isProvisioningDevice(result)) {
+            final deviceId = result.device.remoteId.toString();
+
+            // Only emit new devices (avoid duplicates)
+            if (!discoveredIds.contains(deviceId)) {
+              discoveredIds.add(deviceId);
               final device = _mapToProvisioningDevice(result);
-              controller.add(device);
+
+              _logger.d('Found provisioning device: ${device.name} (${device.id})');
+              yield device;
             }
           }
-        },
-        onError: (error) {
-          _logger.e('Scan error: $error');
-          controller.addError(BleError('Scan error: $error'));
-        },
-      );
+        }
 
-      // Wait for scan to complete
-      await Future.delayed(scanTimeout);
+        // Check if scan is still running
+        if (!await FlutterBluePlus.isScanning.first) {
+          break;
+        }
+      }
+
+      _logger.i('BLE scan completed, found ${discoveredIds.length} devices');
       await FlutterBluePlus.stopScan();
-      await _scanSubscription?.cancel();
-      _scanSubscription = null;
-
-      await controller.close();
-      yield* controller.stream;
     } catch (e) {
       _logger.e('Device scan failed: $e');
+      await FlutterBluePlus.stopScan();
       if (e is ProvisioningError) rethrow;
       throw BleError('Device scan failed: $e');
+    } finally {
+      await _scanSubscription?.cancel();
+      _scanSubscription = null;
     }
   }
 

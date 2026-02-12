@@ -43,7 +43,6 @@ class _ProvisioningPageState extends ConsumerState<ProvisioningPage> {
   @override
   Widget build(BuildContext context) {
     final provisioningState = ref.watch(provisioningProvider);
-    final theme = Theme.of(context);
 
     return PopScope(
       canPop: provisioningState.isComplete || provisioningState.hasFailed,
