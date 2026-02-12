@@ -112,9 +112,7 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         RuntimeError: If database not initialized.
     """
     if _session_factory is None:
-        raise RuntimeError(
-            "Database not initialized. Call init_database() during startup."
-        )
+        raise RuntimeError("Database not initialized. Call init_database() during startup.")
 
     async with _session_factory() as session:
         try:
@@ -127,4 +125,3 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
 
 # Type alias for dependency injection
 DatabaseSession = Annotated[AsyncSession, Depends(get_db_session)]
-

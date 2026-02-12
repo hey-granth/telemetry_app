@@ -39,9 +39,7 @@ class Settings(BaseSettings):
     port: int = Field(default=8000, ge=1, le=65535, description="Server port")
 
     # Database
-    database_url: str = Field(
-        ..., description="Database connection URL (PostgreSQL, SQLite, etc.)"
-    )
+    database_url: str = Field(..., description="Database connection URL (PostgreSQL, SQLite, etc.)")
     db_pool_size: int = Field(default=5, ge=1, le=100, description="Database pool size")
     db_max_overflow: int = Field(default=10, ge=0, le=100, description="Max pool overflow")
     db_pool_timeout: int = Field(default=30, ge=1, description="Pool timeout in seconds")
@@ -74,7 +72,9 @@ class Settings(BaseSettings):
 
     @field_validator("log_level", mode="before")
     @classmethod
-    def normalize_log_level(cls, v: str | Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]) -> str:
+    def normalize_log_level(
+        cls, v: str | Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    ) -> str:
         """Normalize log level to uppercase."""
         return v.upper() if isinstance(v, str) else v
 

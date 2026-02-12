@@ -179,4 +179,3 @@ class ReadingModel(Base):
 
     def __repr__(self) -> str:
         return f"ReadingModel(id={self.id}, device_id={self.device_id}, timestamp={self.timestamp})"
-

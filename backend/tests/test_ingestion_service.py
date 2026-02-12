@@ -10,7 +10,6 @@ from app.domain.value_objects.metrics import SensorMetrics
 from app.services.ingestion_service import IngestionService
 
 
-
 @pytest.fixture
 def device_repository():
     """Mock device repository."""

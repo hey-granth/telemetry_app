@@ -71,7 +71,6 @@ async def init_database(settings: Settings | None = None) -> None:
             echo=settings.debug,  # Log SQL in debug mode
         )
 
-
     _session_factory = async_sessionmaker(
         bind=_engine,
         class_=AsyncSession,

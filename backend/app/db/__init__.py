@@ -24,4 +24,3 @@ __all__ = [
     "init_database",
     "close_database",
 ]
-
