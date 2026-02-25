@@ -119,16 +119,6 @@ final class DeviceError extends ProvisioningError {
   String get userMessage => 'Device error: $message';
 }
 
-/// QR code errors
-final class QrCodeError extends ProvisioningError {
-  const QrCodeError(super.message);
-
-  @override
-  bool get isRecoverable => true;
-
-  @override
-  String get userMessage => 'QR code error: $message';
-}
 
 /// Permission errors
 final class PermissionError extends ProvisioningError {
@@ -146,8 +136,6 @@ final class PermissionError extends ProvisioningError {
         return 'Bluetooth permission required';
       case PermissionType.location:
         return 'Location permission required for BLE scanning';
-      case PermissionType.camera:
-        return 'Camera permission required for QR scanning';
     }
   }
 
@@ -158,6 +146,5 @@ final class PermissionError extends ProvisioningError {
 enum PermissionType {
   bluetooth,
   location,
-  camera,
 }
 

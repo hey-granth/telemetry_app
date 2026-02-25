@@ -18,7 +18,6 @@ class ProvisioningState extends Equatable {
     this.selectedNetwork,
     this.progress = 0.0,
     this.error,
-    this.qrData,
   });
 
   final ProvisioningPhase phase;
@@ -28,7 +27,6 @@ class ProvisioningState extends Equatable {
   final WiFiNetwork? selectedNetwork;
   final double progress;
   final ProvisioningError? error;
-  final QrProvisioningData? qrData;
 
   bool get isLoading => phase.isLoading;
   bool get hasError => error != null;
@@ -43,7 +41,6 @@ class ProvisioningState extends Equatable {
         selectedNetwork,
         progress,
         error,
-        qrData,
       ];
 
   ProvisioningState copyWith({
@@ -55,8 +52,6 @@ class ProvisioningState extends Equatable {
     double? progress,
     ProvisioningError? error,
     bool clearError = false,
-    QrProvisioningData? qrData,
-    bool clearQrData = false,
   }) {
     return ProvisioningState(
       phase: phase ?? this.phase,
@@ -66,7 +61,6 @@ class ProvisioningState extends Equatable {
       selectedNetwork: selectedNetwork ?? this.selectedNetwork,
       progress: progress ?? this.progress,
       error: clearError ? null : (error ?? this.error),
-      qrData: clearQrData ? null : (qrData ?? this.qrData),
     );
   }
 }
@@ -97,7 +91,6 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
     required ProvisionWiFiUseCase provisionWiFiUseCase,
     required GetProvisioningStatusUseCase getProvisioningStatusUseCase,
     required SendCustomDataUseCase sendCustomDataUseCase,
-    required ParseQrCodeUseCase parseQrCodeUseCase,
     required DisconnectDeviceUseCase disconnectDeviceUseCase,
     Logger? logger,
   })  : _scanForDevicesUseCase = scanForDevicesUseCase,
@@ -107,7 +100,6 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
         _provisionWiFiUseCase = provisionWiFiUseCase,
         _getProvisioningStatusUseCase = getProvisioningStatusUseCase,
         _sendCustomDataUseCase = sendCustomDataUseCase,
-        _parseQrCodeUseCase = parseQrCodeUseCase,
         _disconnectDeviceUseCase = disconnectDeviceUseCase,
         _logger = logger ?? Logger(),
         super(const ProvisioningState());
@@ -120,7 +112,6 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
   // ignore: unused_field
   final GetProvisioningStatusUseCase _getProvisioningStatusUseCase;
   final SendCustomDataUseCase _sendCustomDataUseCase;
-  final ParseQrCodeUseCase _parseQrCodeUseCase;
   final DisconnectDeviceUseCase _disconnectDeviceUseCase;
   final Logger _logger;
 
@@ -312,36 +303,6 @@ class ProvisioningNotifier extends StateNotifier<ProvisioningState> {
     await provisionWiFi(credentials);
   }
 
-  /// Parse QR code
-  void parseQrCode(String qrData) {
-    _logger.i('Parsing QR code');
-
-    try {
-      final data = _parseQrCodeUseCase(qrData);
-      state = state.copyWith(qrData: data, clearError: true);
-      _logger.i('QR code parsed: ${data.serviceName}');
-    } catch (e) {
-      _handleError(e);
-    }
-  }
-
-  /// Provision from QR code
-  Future<void> provisionFromQrCode({
-    required QrProvisioningData qrData,
-    required WiFiCredentials credentials,
-  }) async {
-    // Find device by service name
-    final device = state.discoveredDevices.firstWhere(
-      (d) => d.name.contains(qrData.serviceName),
-      orElse: () => throw const DeviceError('Device not found'),
-    );
-
-    await provisionDevice(
-      device: device,
-      proofOfPossession: qrData.proofOfPossession,
-      credentials: credentials,
-    );
-  }
 
   /// Send custom data
   Future<void> sendCustomData(Map<String, String> data) async {

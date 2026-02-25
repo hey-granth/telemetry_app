@@ -9,7 +9,6 @@ import '../../../../core/errors/provisioning_errors.dart';
 import '../../domain/entities/provisioning_entities.dart';
 import '../../domain/repositories/provisioning_repository.dart';
 import '../protocol/provisioning_protocol.dart';
-import '../qr/qr_parser.dart';
 import '../transports/ble_transport.dart';
 import '../transports/provisioning_transport.dart';
 
@@ -249,10 +248,6 @@ class ProvisioningRepositoryImpl implements ProvisioningRepository {
     await _protocol!.sendCustomData(data);
   }
 
-  @override
-  QrProvisioningData parseQrCode(String qrData) {
-    return QrCodeParser.parse(qrData);
-  }
 
   @override
   Future<void> dispose() async {

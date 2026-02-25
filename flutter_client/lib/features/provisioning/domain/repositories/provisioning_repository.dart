@@ -31,8 +31,6 @@ abstract class ProvisioningRepository {
   /// Send custom data
   Future<void> sendCustomData(Map<String, String> data);
 
-  /// Parse QR code
-  QrProvisioningData parseQrCode(String qrData);
 
   /// Clean up resources
   Future<void> dispose();

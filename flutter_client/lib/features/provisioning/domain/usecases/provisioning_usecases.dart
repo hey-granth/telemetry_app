@@ -105,19 +105,6 @@ class SendCustomDataUseCase {
   }
 }
 
-/// Parse QR code
-class ParseQrCodeUseCase {
-  ParseQrCodeUseCase(this._repository, {Logger? logger})
-      : _logger = logger ?? Logger();
-
-  final ProvisioningRepository _repository;
-  final Logger _logger;
-
-  QrProvisioningData call(String qrData) {
-    _logger.i('Executing ParseQrCodeUseCase');
-    return _repository.parseQrCode(qrData);
-  }
-}
 
 /// Disconnect from device
 class DisconnectDeviceUseCase {

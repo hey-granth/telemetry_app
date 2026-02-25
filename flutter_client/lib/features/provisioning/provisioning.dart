@@ -12,5 +12,5 @@ export 'presentation/state/provisioning_state.dart';
 export 'presentation/screens/device_discovery_screen.dart';
 export 'presentation/screens/wifi_selection_screen.dart';
 export 'presentation/screens/provisioning_progress_screen.dart';
-export 'presentation/screens/qr_scanner_screen.dart';
+
 

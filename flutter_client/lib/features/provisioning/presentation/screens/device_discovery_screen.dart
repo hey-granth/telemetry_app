@@ -9,7 +9,6 @@ import '../../../../core/utils/permission_helper.dart';
 import '../../domain/entities/provisioning_entities.dart';
 import '../providers/esp32_provisioning_providers.dart';
 import '../state/provisioning_state.dart';
-import 'qr_scanner_screen.dart';
 import 'wifi_selection_screen.dart';
 
 /// ESP32 device discovery screen
@@ -68,13 +67,6 @@ class _DeviceDiscoveryScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text('ESP32 Provisioning'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.qr_code_scanner),
-            onPressed: () => _navigateToQrScanner(),
-            tooltip: 'Scan QR Code',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -361,13 +353,6 @@ class _DeviceDiscoveryScreenState
     );
   }
 
-  void _navigateToQrScanner() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const QrScannerScreen(),
-      ),
-    );
-  }
 }
+
 

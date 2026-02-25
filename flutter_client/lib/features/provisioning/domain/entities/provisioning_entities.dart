@@ -139,23 +139,4 @@ enum ProvisioningStatus {
   failed,
 }
 
-/// QR code data
-class QrProvisioningData extends Equatable {
-  const QrProvisioningData({
-    required this.version,
-    required this.transportType,
-    required this.serviceName,
-    required this.proofOfPossession,
-    this.password,
-  });
-
-  final String version;
-  final TransportType transportType;
-  final String serviceName;
-  final String proofOfPossession;
-  final String? password;
-
-  @override
-  List<Object?> get props => [version, transportType, serviceName, proofOfPossession, password];
-}
 

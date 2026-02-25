@@ -17,6 +17,10 @@ class OnboardingPage extends ConsumerStatefulWidget {
 }
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
+  bool _hasError = false;
+  String? _errorMessage;
+  bool _isProcessing = false;
+
   @override
   void initState() {
     super.initState();
@@ -27,35 +31,63 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Future<void> _navigateToProvisioning() async {
-    // Check if we need to request permissions
-    if (PermissionHelper.isPermissionHandlingSupported) {
-      // Show dialog and request permissions
-      if (mounted) {
-        final shouldRequest = await _showPermissionDialog();
-        if (shouldRequest) {
-          final granted = await PermissionHelper.checkAndRequestBlePermissions();
+    setState(() {
+      _isProcessing = true;
+      _hasError = false;
+      _errorMessage = null;
+    });
 
-          if (!granted && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Permissions are required for device discovery'),
-                backgroundColor: Colors.orange,
-              ),
-            );
+    try {
+      // Check if we need to request permissions
+      if (PermissionHelper.isPermissionHandlingSupported) {
+        // Show dialog and request permissions
+        if (mounted) {
+          final shouldRequest = await _showPermissionDialog();
+          if (shouldRequest) {
+            final granted = await PermissionHelper.checkAndRequestBlePermissions();
+
+            if (!granted && mounted) {
+              setState(() {
+                _hasError = true;
+                _errorMessage = 'Permissions are required for device discovery';
+                _isProcessing = false;
+              });
+              return;
+            }
           }
         }
+      } else {
+        debugPrint('Running on platform that does not require permission handling');
       }
-    } else {
-      debugPrint('Running on platform that does not require permission handling');
-    }
 
-    // Navigate to ESP32 device discovery
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const DeviceDiscoveryScreen(),
-        ),
-      );
+      // Navigate to ESP32 device discovery
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const DeviceDiscoveryScreen(),
+          ),
+        );
+      }
+    } on PermissionHandlerUnavailableException catch (e) {
+      // The permission_handler plugin is not registered; show explicit error with retry
+      debugPrint('Permission plugin unavailable: $e');
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage =
+              'Permission plugin not available. Try rebuilding the app (flutter clean && flutter pub get) and restart.';
+          _isProcessing = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Unexpected error during permission flow: $e');
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = 'Unexpected error: $e';
+          _isProcessing = false;
+        });
+      }
     }
   }
 
@@ -95,18 +127,46 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Checking permissions...',
-              style: theme.textTheme.bodyLarge,
-            ),
-          ],
-        ),
+        child: _hasError
+            ? _buildErrorContent(theme)
+            : _isProcessing
+                ? _buildProcessingContent(theme)
+                : _buildProcessingContent(theme),
       ),
+    );
+  }
+
+  Widget _buildProcessingContent(ThemeData theme) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const CircularProgressIndicator(),
+        const SizedBox(height: AppSpacing.lg),
+        Text(
+          'Checking permissions...',
+          style: theme.textTheme.bodyLarge,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorContent(ThemeData theme) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.error_outline, size: 64, color: Colors.red),
+        const SizedBox(height: AppSpacing.lg),
+        Text(
+          _errorMessage ?? 'An error occurred',
+          style: theme.textTheme.bodyLarge,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        ElevatedButton(
+          onPressed: () => _navigateToProvisioning(),
+          child: const Text('Retry'),
+        ),
+      ],
     );
   }
 }

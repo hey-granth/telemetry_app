@@ -5,11 +5,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import '../features/provisioning/domain/entities/provisioning_entities.dart';
 import '../features/provisioning/presentation/providers/esp32_provisioning_providers.dart';
 import '../features/provisioning/presentation/state/provisioning_state.dart';
 import '../features/provisioning/presentation/screens/device_discovery_screen.dart';
-import '../features/provisioning/presentation/screens/qr_scanner_screen.dart';
+
+final _logger = Logger();
 
 /// Example: Launch provisioning flow
 class ProvisioningExample extends ConsumerWidget {
@@ -29,14 +31,6 @@ class ProvisioningExample extends ConsumerWidget {
               label: const Text('Provision Device via BLE'),
               onPressed: () => _launchManualProvisioning(context),
             ),
-            const SizedBox(height: 16),
-
-            // QR code provisioning button
-            ElevatedButton.icon(
-              icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Scan QR Code'),
-              onPressed: () => _launchQrProvisioning(context),
-            ),
           ],
         ),
       ),
@@ -48,15 +42,6 @@ class ProvisioningExample extends ConsumerWidget {
       context,
       MaterialPageRoute(
         builder: (context) => const DeviceDiscoveryScreen(),
-      ),
-    );
-  }
-
-  void _launchQrProvisioning(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const QrScannerScreen(),
       ),
     );
   }
@@ -79,35 +64,35 @@ class _ProgrammaticProvisioningExampleState
 
     try {
       // Step 1: Scan for devices
-      print('Scanning for devices...');
+      _logger.i('Scanning for devices...');
       await notifier.startDeviceScan(timeout: const Duration(seconds: 30));
 
       // Step 2: Select a device (first one in this example)
       final state = ref.read(esp32ProvisioningProvider);
       if (state.discoveredDevices.isEmpty) {
-        print('No devices found');
+        _logger.w('No devices found');
         return;
       }
 
       final device = state.discoveredDevices.first;
-      print('Found device: ${device.name}');
+      _logger.i('Found device: ${device.name}');
 
       // Step 3: Connect to device
-      print('Connecting...');
+      _logger.i('Connecting...');
       await notifier.connectToDevice(device);
 
       // Step 4: Establish secure session
-      print('Establishing secure session...');
+      _logger.i('Establishing secure session...');
       await notifier.establishSecureSession(
         proofOfPossession: 'abcd1234', // Device-specific PoP
       );
 
       // Step 5: Scan Wi-Fi networks
-      print('Scanning Wi-Fi networks...');
+      _logger.i('Scanning Wi-Fi networks...');
       await notifier.scanWiFiNetworks();
 
       // Step 6: Provision Wi-Fi
-      print('Provisioning Wi-Fi...');
+      _logger.i('Provisioning Wi-Fi...');
       await notifier.provisionWiFi(
         WiFiCredentials(
           ssid: 'MyNetwork',
@@ -115,9 +100,9 @@ class _ProgrammaticProvisioningExampleState
         ),
       );
 
-      print('✅ Provisioning complete!');
-    } catch (e) {
-      print('❌ Provisioning failed: $e');
+      _logger.i('✅ Provisioning complete!');
+    } catch (e, st) {
+      _logger.e('❌ Provisioning failed: $e', e, st);
     }
   }
 
@@ -151,73 +136,6 @@ class _ProgrammaticProvisioningExampleState
   }
 }
 
-/// Example: QR Code-based provisioning
-class QrProvisioningExample extends ConsumerStatefulWidget {
-  const QrProvisioningExample({super.key});
-
-  @override
-  ConsumerState<QrProvisioningExample> createState() =>
-      _QrProvisioningExampleState();
-}
-
-class _QrProvisioningExampleState
-    extends ConsumerState<QrProvisioningExample> {
-
-  final _qrData = '''
-  {
-    "ver": "v1",
-    "name": "PROV_ESP32_DEMO",
-    "pop": "abcd1234",
-    "transport": "ble"
-  }
-  ''';
-
-  Future<void> _provisionFromQr() async {
-    final notifier = ref.read(esp32ProvisioningProvider.notifier);
-
-    try {
-      // Parse QR code
-      notifier.parseQrCode(_qrData);
-
-      final state = ref.read(esp32ProvisioningProvider);
-      if (state.qrData == null) {
-        print('Failed to parse QR code');
-        return;
-      }
-
-      print('QR Data: ${state.qrData!.serviceName}');
-
-      // Scan for the device mentioned in QR code
-      await notifier.startDeviceScan(timeout: const Duration(seconds: 15));
-
-      // Provision using QR data
-      await notifier.provisionFromQrCode(
-        qrData: state.qrData!,
-        credentials: WiFiCredentials(
-          ssid: 'MyNetwork',
-          password: 'mypassword',
-        ),
-      );
-
-      print('✅ QR provisioning complete!');
-    } catch (e) {
-      print('❌ QR provisioning failed: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('QR Provisioning')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: _provisionFromQr,
-          child: const Text('Provision from QR'),
-        ),
-      ),
-    );
-  }
-}
 
 /// Example: Custom data exchange
 class CustomDataExample extends ConsumerWidget {
@@ -290,5 +208,4 @@ class ProvisioningListenerExample extends ConsumerWidget {
     );
   }
 }
-
 

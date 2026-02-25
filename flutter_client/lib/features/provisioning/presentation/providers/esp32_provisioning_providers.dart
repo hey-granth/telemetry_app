@@ -73,12 +73,6 @@ final esp32SendCustomDataUseCaseProvider = Provider<SendCustomDataUseCase>((ref)
   return SendCustomDataUseCase(repository, logger: logger);
 });
 
-final esp32ParseQrCodeUseCaseProvider = Provider<ParseQrCodeUseCase>((ref) {
-  final repository = ref.watch(esp32ProvisioningRepositoryProvider);
-  final logger = ref.watch(esp32LoggerProvider);
-  return ParseQrCodeUseCase(repository, logger: logger);
-});
-
 final esp32DisconnectDeviceUseCaseProvider = Provider<DisconnectDeviceUseCase>((ref) {
   final repository = ref.watch(esp32ProvisioningRepositoryProvider);
   final logger = ref.watch(esp32LoggerProvider);
@@ -100,7 +94,6 @@ final esp32ProvisioningProvider =
     getProvisioningStatusUseCase:
         ref.watch(esp32GetProvisioningStatusUseCaseProvider),
     sendCustomDataUseCase: ref.watch(esp32SendCustomDataUseCaseProvider),
-    parseQrCodeUseCase: ref.watch(esp32ParseQrCodeUseCaseProvider),
     disconnectDeviceUseCase: ref.watch(esp32DisconnectDeviceUseCaseProvider),
     logger: logger,
   );

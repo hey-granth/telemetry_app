@@ -4,17 +4,30 @@
 library;
 
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+/// Thrown when the native permission handler plugin is not registered/available.
+class PermissionHandlerUnavailableException implements Exception {
+  final String message;
+  PermissionHandlerUnavailableException([this.message = 'permission_handler plugin not available']);
+  @override
+  String toString() => 'PermissionHandlerUnavailableException: $message';
+}
+
+final _logger = Logger();
 
 /// Helper class for checking and requesting permissions in a platform-aware manner
 class PermissionHelper {
   /// Check if permission handling is supported on current platform
   static bool get isPermissionHandlingSupported {
-    if (kIsWeb) return false;
-
     // Permission handler primarily works on mobile platforms
-    return Platform.isAndroid || Platform.isIOS;
+    try {
+      return Platform.isAndroid || Platform.isIOS;
+    } catch (_) {
+      // Platform may not be available (e.g., web), assume unsupported
+      return false;
+    }
   }
 
   /// Check Bluetooth scan permission status
@@ -27,8 +40,12 @@ class PermissionHelper {
     try {
       return await Permission.bluetoothScan.status;
     } catch (e) {
-      debugPrint('Error checking Bluetooth scan permission: $e');
-      return PermissionStatus.granted; // Assume granted on error
+      if (e.toString().contains('MissingPluginException')) {
+        _logger.w('Permission plugin missing when checking bluetoothScan: $e');
+        throw PermissionHandlerUnavailableException();
+      }
+      _logger.w('Error checking Bluetooth scan permission: $e');
+      return PermissionStatus.denied;
     }
   }
 
@@ -41,8 +58,12 @@ class PermissionHelper {
     try {
       return await Permission.location.status;
     } catch (e) {
-      debugPrint('Error checking location permission: $e');
-      return PermissionStatus.granted;
+      if (e.toString().contains('MissingPluginException')) {
+        _logger.w('Permission plugin missing when checking location: $e');
+        throw PermissionHandlerUnavailableException();
+      }
+      _logger.w('Error checking location permission: $e');
+      return PermissionStatus.denied;
     }
   }
 
@@ -55,8 +76,12 @@ class PermissionHelper {
     try {
       return await Permission.bluetoothScan.request();
     } catch (e) {
-      debugPrint('Error requesting Bluetooth scan permission: $e');
-      return PermissionStatus.granted;
+      if (e.toString().contains('MissingPluginException')) {
+        _logger.w('Permission plugin missing when requesting bluetoothScan: $e');
+        throw PermissionHandlerUnavailableException();
+      }
+      _logger.w('Error requesting Bluetooth scan permission: $e');
+      return PermissionStatus.denied;
     }
   }
 
@@ -69,15 +94,19 @@ class PermissionHelper {
     try {
       return await Permission.location.request();
     } catch (e) {
-      debugPrint('Error requesting location permission: $e');
-      return PermissionStatus.granted;
+      if (e.toString().contains('MissingPluginException')) {
+        _logger.w('Permission plugin missing when requesting location: $e');
+        throw PermissionHandlerUnavailableException();
+      }
+      _logger.w('Error requesting location permission: $e');
+      return PermissionStatus.denied;
     }
   }
 
   /// Check and request all required permissions for BLE provisioning
   static Future<bool> checkAndRequestBlePermissions() async {
     if (!isPermissionHandlingSupported) {
-      debugPrint('Platform does not require permission handling');
+      _logger.i('Platform does not require permission handling');
       return true; // Assume permissions are granted
     }
 
@@ -94,10 +123,14 @@ class PermissionHelper {
       final locationResult = await requestLocation();
 
       return bluetoothResult.isGranted && locationResult.isGranted;
+    } on PermissionHandlerUnavailableException {
+      // Surface a clear error to the caller so the UI can show a retry path.
+      _logger.w('Permission handler plugin not available on this platform');
+      rethrow;
     } catch (e) {
-      debugPrint('Error in permission check/request: $e');
-      // On error, assume permissions are available (e.g., desktop platforms)
-      return true;
+      _logger.w('Error in permission check/request: $e');
+      // Do not assume granted on unexpected errors; require explicit grant.
+      return false;
     }
   }
 
@@ -119,5 +152,3 @@ class PermissionHelper {
     }
   }
 }
-
-
