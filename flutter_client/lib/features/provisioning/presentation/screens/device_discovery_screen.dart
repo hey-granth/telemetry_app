@@ -45,7 +45,7 @@ class _DeviceDiscoveryScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Bluetooth and location permissions required for BLE scanning'),
+            content: Text('Bluetooth permission is required for BLE scanning'),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 5),
           ),

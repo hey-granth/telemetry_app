@@ -97,7 +97,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           builder: (context) => AlertDialog(
             title: const Text('Bluetooth Permission Required'),
             content: const Text(
-              'This app needs Bluetooth and Location permissions to discover and connect to ESP32 devices.',
+              'This app needs Bluetooth permission to discover and connect to ESP32 devices.',
             ),
             actions: [
               TextButton(

@@ -8,12 +8,20 @@ class AppConfig {
   /// Application name
   static const String appName = 'Telemetry';
 
+  /// Backend host IP address (local network)
+  static const String host = '172.23.19.223';
+
+  /// Backend port
+  static const int port = 8000;
+
+  /// Backend base URL
+  static const String baseUrl = 'http://$host:$port';
+
   /// Backend API base URL
-  /// TODO: Configure via environment variable for production
-  static const String apiBaseUrl = 'http://localhost:8000/api/v1';
+  static const String apiBaseUrl = '$baseUrl/api/v1';
 
   /// WebSocket base URL
-  static const String wsBaseUrl = 'ws://localhost:8000/api/v1';
+  static const String wsBaseUrl = 'ws://$host:$port/api/v1';
 
   /// Request timeout in seconds
   static const int requestTimeoutSeconds = 30;

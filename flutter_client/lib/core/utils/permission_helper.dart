@@ -1,6 +1,7 @@
 /// Platform-aware permission helper
 ///
-/// Handles permissions gracefully across different platforms
+/// Handles permissions gracefully across different platforms.
+/// Only Bluetooth permissions are required for BLE provisioning.
 library;
 
 import 'dart:io' show Platform;
@@ -10,22 +11,24 @@ import 'package:permission_handler/permission_handler.dart';
 /// Thrown when the native permission handler plugin is not registered/available.
 class PermissionHandlerUnavailableException implements Exception {
   final String message;
-  PermissionHandlerUnavailableException([this.message = 'permission_handler plugin not available']);
+  PermissionHandlerUnavailableException(
+      [this.message = 'permission_handler plugin not available']);
   @override
   String toString() => 'PermissionHandlerUnavailableException: $message';
 }
 
 final _logger = Logger();
 
-/// Helper class for checking and requesting permissions in a platform-aware manner
+/// Helper class for checking and requesting permissions in a platform-aware manner.
+///
+/// This app only requires Bluetooth permissions (scan + connect).
+/// No Contacts, Location, or other permissions are requested.
 class PermissionHelper {
   /// Check if permission handling is supported on current platform
   static bool get isPermissionHandlingSupported {
-    // Permission handler primarily works on mobile platforms
     try {
       return Platform.isAndroid || Platform.isIOS;
     } catch (_) {
-      // Platform may not be available (e.g., web), assume unsupported
       return false;
     }
   }
@@ -33,7 +36,6 @@ class PermissionHelper {
   /// Check Bluetooth scan permission status
   static Future<PermissionStatus> checkBluetoothScan() async {
     if (!isPermissionHandlingSupported) {
-      // On unsupported platforms, assume granted
       return PermissionStatus.granted;
     }
 
@@ -49,20 +51,21 @@ class PermissionHelper {
     }
   }
 
-  /// Check location permission status
-  static Future<PermissionStatus> checkLocation() async {
+  /// Check Bluetooth connect permission status
+  static Future<PermissionStatus> checkBluetoothConnect() async {
     if (!isPermissionHandlingSupported) {
       return PermissionStatus.granted;
     }
 
     try {
-      return await Permission.location.status;
+      return await Permission.bluetoothConnect.status;
     } catch (e) {
       if (e.toString().contains('MissingPluginException')) {
-        _logger.w('Permission plugin missing when checking location: $e');
+        _logger.w(
+            'Permission plugin missing when checking bluetoothConnect: $e');
         throw PermissionHandlerUnavailableException();
       }
-      _logger.w('Error checking location permission: $e');
+      _logger.w('Error checking Bluetooth connect permission: $e');
       return PermissionStatus.denied;
     }
   }
@@ -77,7 +80,8 @@ class PermissionHelper {
       return await Permission.bluetoothScan.request();
     } catch (e) {
       if (e.toString().contains('MissingPluginException')) {
-        _logger.w('Permission plugin missing when requesting bluetoothScan: $e');
+        _logger
+            .w('Permission plugin missing when requesting bluetoothScan: $e');
         throw PermissionHandlerUnavailableException();
       }
       _logger.w('Error requesting Bluetooth scan permission: $e');
@@ -85,51 +89,83 @@ class PermissionHelper {
     }
   }
 
-  /// Request location permission
-  static Future<PermissionStatus> requestLocation() async {
+  /// Request Bluetooth connect permission
+  static Future<PermissionStatus> requestBluetoothConnect() async {
     if (!isPermissionHandlingSupported) {
       return PermissionStatus.granted;
     }
 
     try {
-      return await Permission.location.request();
+      return await Permission.bluetoothConnect.request();
     } catch (e) {
       if (e.toString().contains('MissingPluginException')) {
-        _logger.w('Permission plugin missing when requesting location: $e');
+        _logger.w(
+            'Permission plugin missing when requesting bluetoothConnect: $e');
         throw PermissionHandlerUnavailableException();
       }
-      _logger.w('Error requesting location permission: $e');
+      _logger.w('Error requesting Bluetooth connect permission: $e');
       return PermissionStatus.denied;
     }
   }
 
-  /// Check and request all required permissions for BLE provisioning
+  /// Check and request all required permissions for BLE provisioning.
+  ///
+  /// Only requests bluetoothScan and bluetoothConnect.
+  /// No Location or Contacts permissions are requested.
   static Future<bool> checkAndRequestBlePermissions() async {
     if (!isPermissionHandlingSupported) {
       _logger.i('Platform does not require permission handling');
-      return true; // Assume permissions are granted
+      return true;
     }
 
     try {
-      final bluetoothStatus = await checkBluetoothScan();
-      final locationStatus = await checkLocation();
+      // Check current status of both Bluetooth permissions
+      final scanStatus = await checkBluetoothScan();
+      final connectStatus = await checkBluetoothConnect();
 
-      if (bluetoothStatus.isGranted && locationStatus.isGranted) {
+      if (scanStatus.isGranted && connectStatus.isGranted) {
+        _logger.i('All BLE permissions already granted');
         return true;
       }
 
-      // Request permissions if not granted
-      final bluetoothResult = await requestBluetoothScan();
-      final locationResult = await requestLocation();
+      // Build list of permissions that still need to be requested
+      final permissionsToRequest = <Permission>[];
+      if (!scanStatus.isGranted) {
+        permissionsToRequest.add(Permission.bluetoothScan);
+      }
+      if (!connectStatus.isGranted) {
+        permissionsToRequest.add(Permission.bluetoothConnect);
+      }
 
-      return bluetoothResult.isGranted && locationResult.isGranted;
+      _logger.i('Requesting BLE permissions: $permissionsToRequest');
+
+      // Batch-request all needed permissions at once
+      final results = await permissionsToRequest.request();
+
+      final allGranted = results.values.every((status) => status.isGranted);
+
+      if (!allGranted) {
+        _logger.w('Not all BLE permissions granted: $results');
+
+        // Check if any are permanently denied → guide user to settings
+        final permanentlyDenied = results.entries
+            .where((e) => e.value.isPermanentlyDenied)
+            .map((e) => e.key)
+            .toList();
+        if (permanentlyDenied.isNotEmpty) {
+          _logger.w(
+            'Permanently denied permissions: $permanentlyDenied. '
+            'User must enable them in app settings.',
+          );
+        }
+      }
+
+      return allGranted;
     } on PermissionHandlerUnavailableException {
-      // Surface a clear error to the caller so the UI can show a retry path.
       _logger.w('Permission handler plugin not available on this platform');
       rethrow;
     } catch (e) {
       _logger.w('Error in permission check/request: $e');
-      // Do not assume granted on unexpected errors; require explicit grant.
       return false;
     }
   }
